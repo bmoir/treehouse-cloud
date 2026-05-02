@@ -132,6 +132,20 @@ Resources:
       RouteKey: GET /history
       Target: !Sub "integrations/${LambdaIntegration}"
 
+  TankIngestRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: POST /tank
+      Target: !Sub "integrations/${LambdaIntegration}"
+
+  TankSnapshotRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: GET /tank/snapshot
+      Target: !Sub "integrations/${LambdaIntegration}"
+
   DefaultStage:
     Type: AWS::ApiGatewayV2::Stage
     Properties:
@@ -233,6 +247,22 @@ Resources:
             CachedMethods: [GET, HEAD]
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
             OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+          # POST /tank — no cache; forwards X-API-Key header + request body
+          - PathPattern: /tank
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            CachedMethods: [GET, HEAD]
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+          # GET /tank/snapshot — no cache; always fresh from Lambda
+          - PathPattern: /tank/snapshot
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD]
+            CachedMethods: [GET, HEAD]
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
 
 Outputs:
   CloudFrontDomain:
@@ -258,3 +288,7 @@ Outputs:
   LambdaFunctionName:
     Description: Lambda function name (for direct code updates)
     Value: !Ref ApiFunction
+
+  TankIngestEndpoint:
+    Description: POST endpoint for water tank sensor
+    Value: !Sub "https://${Distribution.DomainName}/tank"

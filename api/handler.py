@@ -96,6 +96,10 @@ def handler(event, context):
         return _handle_snapshot()
     if method == 'GET' and path == '/history':
         return _handle_history(event)
+    if method == 'POST' and path == '/tank':
+        return _handle_tank_ingest(event)
+    if method == 'GET' and path == '/tank/snapshot':
+        return _handle_tank_snapshot()
 
     return _resp(404, {'error': 'not found'})
 
@@ -161,6 +165,66 @@ def _handle_snapshot():
     item = result.get('Item')
     if not item:
         return _resp(404, {'error': 'no snapshot available yet'})
+    return _resp(200, _from_decimal(item['payload']))
+
+
+def _handle_tank_ingest(event):
+    headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
+    provided = headers.get('x-api-key', '')
+    try:
+        expected = _get_api_key()
+    except _ssm.exceptions.ParameterNotFound:
+        return _resp(503, {'ok': False, 'error': 'service not configured — run create_key.sh'})
+    if not hmac.compare_digest(provided, expected):
+        return _resp(401, {'ok': False, 'error': 'unauthorized'})
+
+    body = event.get('body') or ''
+    if event.get('isBase64Encoded'):
+        import base64
+        body = base64.b64decode(body).decode('utf-8')
+    try:
+        data = json.loads(body)
+    except (json.JSONDecodeError, ValueError):
+        return _resp(400, {'ok': False, 'error': 'invalid json'})
+
+    for field in ('distance_cm', 'percent', 'litres'):
+        if field not in data:
+            return _resp(400, {'ok': False, 'error': f'missing {field}'})
+
+    now_ts = int(time.time())
+    captured_at = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
+    ttl = now_ts + HISTORY_TTL_DAYS * 86400
+
+    payload = _to_decimal({
+        'distance_cm': data['distance_cm'],
+        'percent': data['percent'],
+        'litres': int(data['litres']),
+        'captured_at': captured_at,
+    })
+
+    _table.put_item(Item={
+        'pk': 'tank-latest',
+        'sk': 'latest',
+        'payload': payload,
+        'captured_at': captured_at,
+        'ingested_at': now_ts,
+    })
+    _table.put_item(Item={
+        'pk': 'tank',
+        'sk': captured_at,
+        'payload': payload,
+        'captured_at': captured_at,
+        'ingested_at': now_ts,
+        'ttl': ttl,
+    })
+    return _resp(200, {'ok': True})
+
+
+def _handle_tank_snapshot():
+    result = _table.get_item(Key={'pk': 'tank-latest', 'sk': 'latest'})
+    item = result.get('Item')
+    if not item:
+        return _resp(404, {'error': 'no tank data yet'})
     return _resp(200, _from_decimal(item['payload']))
 
 
