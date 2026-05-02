@@ -1137,7 +1137,7 @@
     if (!lastFetchTime) return;
     const ageSec = Math.round((Date.now() - lastFetchTime) / 1000);
     const ageText = ageSec < 60 ? `${ageSec}s ago` : `${Math.round(ageSec/60)}m ago`;
-    const isStale = (Date.now() - lastFetchTime) > 720000;
+    const isStale = (Date.now() - lastFetchTime) > 1500000;
     document.getElementById('fetchedAt').textContent = `Fetched ${ageText}`;
     setStatus(isStale ? 'stale' : 'nominal', isStale ? 'STALE — DATA OVERDUE' : `Updated ${ageText}`);
   }
@@ -1407,8 +1407,8 @@
   /* ── Boot & intervals ─────────────────────────────── */
   loadDashboard();
   loadTankData();
-  setInterval(loadDashboard,   300000);
-  setInterval(loadTankData,    300000);
+  setInterval(loadDashboard,   600000);
+  setInterval(loadTankData,    600000);
   setInterval(updateAgeDisplay, 15000);
 
 
