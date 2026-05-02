@@ -1,0 +1,1418 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temporal Habitat Oversight — Division 7</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Space+Grotesk:wght@300;400;500;600;700&family=Special+Elite&display=swap" />
+  <link rel="stylesheet" href="colors_and_type.css" />
+  <style>
+    /* ── Reset ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100vw; height: 100vh; overflow: hidden; }
+
+    body {
+      background: var(--bg-base);
+      color: var(--fg1);
+      font-family: var(--font-body);
+      font-size: 13px;
+    }
+
+    /* Grain texture */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.55;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.06) 3px,
+        rgba(0,0,0,0.06) 4px
+      );
+    }
+
+    /* ── Root layout ───────────────────────────────── */
+    .tho-wrap {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 48px 1fr;
+      gap: 0;
+      padding: 10px 12px 10px;
+    }
+
+    /* ── Header bar ────────────────────────────────── */
+    .tho-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px 8px;
+      border-bottom: 1px solid var(--accent-dim);
+      gap: 16px;
+    }
+
+    .tho-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .tho-logo {
+      height: 32px;
+      width: auto;
+      flex-shrink: 0;
+    }
+
+    .tho-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .tho-eyebrow {
+      font-family: var(--font-ui);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--fg3);
+    }
+
+    .tho-headline {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fg1);
+      line-height: 1;
+    }
+
+    .tho-header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+
+    .tho-stamp-block {
+      text-align: right;
+    }
+
+    .tho-stamp-line {
+      font-family: var(--font-stamp);
+      font-size: 9px;
+      color: var(--fg3);
+      letter-spacing: 0.1em;
+      line-height: 1.6;
+    }
+
+    .tho-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-body);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--fg2);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-base);
+      padding: 4px 10px;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--forest-mid);
+      box-shadow: 0 0 6px var(--forest-mid);
+      flex-shrink: 0;
+    }
+
+    .status-dot.stale { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+    .status-dot.loading { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+    .tho-refresh-btn {
+      font-family: var(--font-ui);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius-base);
+      color: var(--fg2);
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: border-color 150ms, color 150ms;
+      height: 26px;
+    }
+
+    .tho-refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tho-refresh-btn:active { transform: scale(0.97); box-shadow: var(--shadow-inset); }
+    .tho-refresh-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── Three-column hero ─────────────────────────── */
+    .tho-hero {
+      display: grid;
+      grid-template-columns: 27fr 46fr 27fr;
+      gap: 10px;
+      min-height: 0;
+      padding-top: 10px;
+    }
+
+    .tho-col {
+      display: grid;
+      gap: 8px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Left col: 3 rows */
+    .col-left { grid-template-rows: 28fr 26fr 46fr; }
+
+    /* Centre col: house + tank */
+    .col-centre { grid-template-rows: 1fr 196px; }
+
+    /* Right col: 3 rows */
+    .col-right { grid-template-rows: 28fr 20fr 52fr; }
+
+    /* ── Panel base ────────────────────────────────── */
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-base);
+      padding: 10px 12px 10px;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .panel:hover {
+      border-color: var(--border-active);
+    }
+
+    /* ── Panel section title ────────────────────────── */
+    .panel-title {
+      font-family: var(--font-ui);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--accent-dim);
+      margin-bottom: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title-badge {
+      font-family: var(--font-body);
+      font-size: 8px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Metric grid ────────────────────────────────── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .metric-grid-2col { grid-template-columns: repeat(2, 1fr); }
+
+    .metric {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-base);
+      padding: 7px 9px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+    }
+
+    .metric-label {
+      font-family: var(--font-ui);
+      font-size: 8.5px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: clamp(18px, 1.5vw, 26px);
+      font-weight: 700;
+      color: var(--fg1);
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+
+    .metric-value.accent { color: var(--accent); text-shadow: 0 0 8px rgba(245,151,45,0.3); }
+    .metric-value.forest { color: var(--forest-mid); }
+    .metric-value.danger { color: var(--danger); }
+    .metric-value.info   { color: var(--info); }
+
+    .metric-sub {
+      font-family: var(--font-body);
+      font-size: 8.5px;
+      color: var(--fg3);
+      margin-top: 3px;
+      line-height: 1.3;
+    }
+
+    /* ── Power bars ─────────────────────────────────── */
+    .power-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex: 1;
+      min-height: 0;
+      justify-content: space-around;
+    }
+
+    .power-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .power-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .power-label {
+      font-family: var(--font-ui);
+      font-size: 8.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--fg3);
+    }
+
+    .power-value {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg1);
+      letter-spacing: 0.02em;
+    }
+
+    .power-mode {
+      font-family: var(--font-body);
+      font-size: 8px;
+      color: var(--fg3);
+      margin-left: 6px;
+    }
+
+    .power-bar-track {
+      height: 7px;
+      background: var(--bg-inset);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .power-bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      transition: width 600ms var(--ease-decelerate);
+    }
+
+    /* ── Garden list ────────────────────────────────── */
+    .soil-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin-bottom: 7px;
+      flex-shrink: 0;
+    }
+
+    .soil-card {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-base);
+      padding: 6px 8px;
+    }
+
+    .soil-label {
+      font-family: var(--font-ui);
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      margin-bottom: 3px;
+    }
+
+    .soil-value {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--fg1);
+      line-height: 1;
+    }
+
+    .garden-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      justify-content: space-around;
+    }
+
+    .garden-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      gap: 8px;
+    }
+
+    .garden-row:last-child { border-bottom: none; }
+
+    .garden-zone {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--fg1);
+    }
+
+    .garden-status {
+      font-family: var(--font-body);
+      font-size: 9px;
+      color: var(--fg3);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .garden-status.running {
+      color: var(--forest-mid);
+      text-shadow: 0 0 6px rgba(74,156,42,0.3);
+    }
+
+    /* ── House diagram (centre top) ─────────────────── */
+    .house-panel {
+      position: relative;
+    }
+
+    .house-stage {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr auto;
+      gap: 6px;
+      padding: 0 0 6px 0;
+    }
+
+    .room-card {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-base);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .room-card.ac-on {
+      border-color: var(--border-active);
+      background: linear-gradient(135deg, rgba(74,122,78,0.15), var(--bg-raised));
+    }
+
+    .room-name {
+      font-family: var(--font-ui);
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      margin-bottom: 3px;
+    }
+
+    .room-temp {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 2vw, 34px);
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      text-shadow: 0 0 10px rgba(245,151,45,0.25);
+    }
+
+    .room-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 4px;
+    }
+
+    .room-meta-line {
+      font-family: var(--font-body);
+      font-size: 8.5px;
+      color: var(--fg3);
+      line-height: 1.3;
+    }
+
+    .room-ac-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-family: var(--font-body);
+      font-size: 8px;
+      padding: 2px 5px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-inset);
+      border: 1px solid var(--border);
+      color: var(--fg3);
+      margin-top: 3px;
+      width: fit-content;
+    }
+
+    .room-ac-badge.on {
+      color: var(--forest-mid);
+      border-color: var(--forest-mid);
+      background: rgba(74,156,42,0.1);
+    }
+
+    .ac-sensors-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .ac-sensor {
+      background: var(--bg-inset);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px 5px;
+    }
+
+    .ac-sensor-label {
+      font-family: var(--font-ui);
+      font-size: 7px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .ac-sensor-val {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--fg1);
+      line-height: 1;
+    }
+
+    /* Solar gen card in house grid */
+    .solar-card {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-base);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    /* Forecast ribbon spans full width */
+    .forecast-ribbon {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .forecast-card {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-base);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .forecast-day {
+      font-family: var(--font-ui);
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg3);
+    }
+
+    .forecast-condition {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+
+    .forecast-temps {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg1);
+      letter-spacing: 0.02em;
+    }
+
+    .forecast-meta {
+      font-family: var(--font-body);
+      font-size: 8px;
+      color: var(--fg3);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    /* ── Tank panel ─────────────────────────────────── */
+    .tank-panel {
+      flex-direction: row;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .tank-meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 4px;
+      flex-shrink: 0;
+      width: 96px;
+    }
+
+    .tank-stat {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-base);
+      padding: 6px 8px;
+    }
+
+    .tank-stat-label {
+      font-family: var(--font-ui);
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .tank-stat-val {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--info);
+      line-height: 1;
+    }
+
+    .tank-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .tank-stage svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Battery panel ──────────────────────────────── */
+    .battery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Lights panel ───────────────────────────────── */
+    .lights-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      flex: 1;
+      min-height: 0;
+      align-content: start;
+    }
+
+    .light-chip {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 6px 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: border-color 150ms;
+    }
+
+    .light-chip.on {
+      border-color: rgba(245,151,45,0.45);
+      background: rgba(245,151,45,0.07);
+    }
+
+    .light-chip.unreachable {
+      opacity: 0.4;
+    }
+
+    .light-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .light-chip.on .light-dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(245,151,45,0.5);
+    }
+
+    .light-name {
+      font-family: var(--font-body);
+      font-size: 8px;
+      color: var(--fg3);
+      text-align: center;
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .light-chip.on .light-name { color: var(--fg1); }
+
+    /* ── Interior atmosphere ────────────────────────── */
+    .atmo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-height: 0;
+      justify-content: space-around;
+    }
+
+    .atmo-room {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-base);
+      padding: 8px 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .atmo-room-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .atmo-room-name {
+      font-family: var(--font-ui);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fg3);
+    }
+
+    .atmo-room-ac {
+      font-family: var(--font-body);
+      font-size: 8px;
+      color: var(--fg3);
+    }
+
+    .atmo-room-ac.on { color: var(--forest-mid); }
+
+    .atmo-primary {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+
+    .atmo-temp {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 2.4vw, 40px);
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      text-shadow: 0 0 10px rgba(245,151,45,0.25);
+    }
+
+    .atmo-hum {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--fg1);
+      line-height: 1;
+    }
+
+    .atmo-sensors {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .atmo-sensor {
+      background: var(--bg-inset);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px 6px;
+    }
+
+    .atmo-sensor-label {
+      font-family: var(--font-ui);
+      font-size: 7px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .atmo-sensor-val {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--fg1);
+      line-height: 1;
+    }
+
+    /* ── Loading / error states ─────────────────────── */
+    .loading-shimmer {
+      background: linear-gradient(90deg, var(--bg-raised) 25%, var(--bg-surface) 50%, var(--bg-raised) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Wave animation */
+    .wave1 { animation: wave-scroll 4s linear infinite; }
+    .wave2 { animation: wave-scroll 7s linear infinite; animation-delay: -3.5s; }
+    @keyframes wave-scroll { to { transform: translateX(-80px); } }
+
+    /* Status dot pulse */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-dot.loading { animation: pulse 1.4s ease-in-out infinite; }
+
+    /* ── Decorative amber rule below header ─────────── */
+    .tho-wrap { gap: 0; }
+
+    /* Stale data warning */
+    .stale-warning {
+      color: var(--danger);
+    }
+
+    /* Helper for small text in power section */
+    .mode-tag {
+      font-family: var(--font-body);
+      font-size: 8px;
+      padding: 1px 5px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      color: var(--fg3);
+      letter-spacing: 0.04em;
+    }
+
+    .mode-tag.export { color: var(--forest-mid); border-color: var(--forest-mid); background: rgba(74,156,42,0.08); }
+    .mode-tag.import { color: var(--danger); border-color: var(--danger); background: rgba(224,82,82,0.08); }
+    .mode-tag.charging { color: var(--info); border-color: var(--info); background: rgba(74,159,212,0.08); }
+    .mode-tag.discharging { color: var(--accent); border-color: var(--accent); background: rgba(245,151,45,0.08); }
+  </style>
+</head>
+
+<body class="tho-root">
+<div class="tho-wrap">
+
+  <!-- ── HEADER ────────────────────────────────────────── -->
+  <header class="tho-header">
+    <div class="tho-header-left">
+      <img src="assets/logo.svg" class="tho-logo" alt="Temporal Habitat Oversight" />
+      <div class="tho-title-block">
+        <div class="tho-eyebrow">Blue Mountains, NSW — Division 7</div>
+        <div class="tho-headline">Habitat Oversight Command</div>
+      </div>
+    </div>
+
+    <div class="tho-header-right">
+      <div class="tho-stamp-block">
+        <div class="tho-stamp-line" id="capturedAt">Snapshot — awaiting data</div>
+        <div class="tho-stamp-line" id="fetchedAt">Fetched —</div>
+      </div>
+      <div class="tho-status-pill">
+        <div class="status-dot loading" id="statusDot"></div>
+        <span id="statusText">Loading…</span>
+      </div>
+      <button class="tho-refresh-btn" id="refreshBtn">Refresh</button>
+    </div>
+  </header>
+
+  <!-- ── THREE-COLUMN HERO ──────────────────────────────── -->
+  <div class="tho-hero">
+
+    <!-- ════════════════════════════════════════════
+         COL 1 — LEFT: Sky → Ground
+         ════════════════════════════════════════════ -->
+    <div class="tho-col col-left">
+
+      <!-- Sky / Weather Envelope -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>Sky / Weather Envelope</span>
+          <span class="panel-title-badge" id="weatherBadge">—</span>
+        </div>
+        <div class="metric-grid" id="weatherMetrics">
+          <div class="metric"><div class="metric-label">Outside Temp</div><div class="metric-value loading-shimmer" style="height:26px; width:70%"></div></div>
+          <div class="metric"><div class="metric-label">Wind</div><div class="metric-value loading-shimmer" style="height:26px; width:60%"></div></div>
+          <div class="metric"><div class="metric-label">Humidity</div><div class="metric-value loading-shimmer" style="height:26px; width:55%"></div></div>
+          <div class="metric"><div class="metric-label">Rain Today</div><div class="metric-value loading-shimmer" style="height:26px; width:65%"></div></div>
+          <div class="metric"><div class="metric-label">Solar W/m²</div><div class="metric-value loading-shimmer" style="height:26px; width:70%"></div></div>
+          <div class="metric"><div class="metric-label">Pressure</div><div class="metric-value loading-shimmer" style="height:26px; width:65%"></div></div>
+        </div>
+      </div>
+
+      <!-- Solar & Grid Exchange -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>Solar &amp; Grid Exchange</span>
+          <span class="panel-title-badge" id="gridBadge">—</span>
+        </div>
+        <div class="power-stack" id="powerStack">
+          <div class="power-row"><div class="power-row-head"><span class="power-label">Solar Generation</span><span class="power-value">—</span></div><div class="power-bar-track"><div class="power-bar-fill" style="width:0%;background:var(--accent)"></div></div></div>
+          <div class="power-row"><div class="power-row-head"><span class="power-label">Home Load</span><span class="power-value">—</span></div><div class="power-bar-track"><div class="power-bar-fill" style="width:0%;background:var(--fg2)"></div></div></div>
+          <div class="power-row"><div class="power-row-head"><span class="power-label">Grid</span><span class="power-value">—</span></div><div class="power-bar-track"><div class="power-bar-fill" style="width:0%;background:var(--info)"></div></div></div>
+        </div>
+      </div>
+
+      <!-- Garden / Soil / Watering -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>Garden / Soil / Watering</span>
+          <span class="panel-title-badge" id="gardenBadge">—</span>
+        </div>
+        <div class="soil-row" id="soilCards">
+          <div class="soil-card"><div class="soil-label">Soil CH1</div><div class="soil-value">—</div></div>
+          <div class="soil-card"><div class="soil-label">Soil CH2</div><div class="soil-value">—</div></div>
+          <div class="soil-card"><div class="soil-label">UV Index</div><div class="soil-value">—</div></div>
+          <div class="soil-card"><div class="soil-label">Solar W/m²</div><div class="soil-value">—</div></div>
+        </div>
+        <div class="garden-list" id="gardenList">
+          <div class="garden-row"><span class="garden-zone">—</span><span class="garden-status">Loading…</span></div>
+        </div>
+      </div>
+
+    </div><!-- /col-left -->
+
+
+    <!-- ════════════════════════════════════════════
+         COL 2 — CENTRE: House + Tank
+         ════════════════════════════════════════════ -->
+    <div class="tho-col col-centre">
+
+      <!-- House / Exterior Future -->
+      <div class="panel house-panel">
+        <div class="panel-title">
+          <span>Exterior Future — Rooms &amp; Outlook</span>
+          <span class="panel-title-badge">BOM / SENSIBO</span>
+        </div>
+        <div class="house-stage" id="houseStage">
+          <!-- populated by JS -->
+          <div class="forecast-ribbon" id="forecastRibbon">
+            <div class="forecast-card"><div class="forecast-day">Today</div><div class="forecast-condition" style="height:18px" class="loading-shimmer"></div></div>
+            <div class="forecast-card"><div class="forecast-day">Tomorrow</div><div class="forecast-condition" style="height:18px" class="loading-shimmer"></div></div>
+            <div class="forecast-card"><div class="forecast-day">—</div><div class="forecast-condition" style="height:18px" class="loading-shimmer"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Water Tank Reserve -->
+      <div class="panel tank-panel">
+        <div style="display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;gap:0">
+          <div class="panel-title" style="margin-bottom:6px">
+            <span>Water Tank Reserve</span>
+            <span class="panel-title-badge" id="tankBadge">110,446 L capacity</span>
+          </div>
+          <div style="display:flex;flex:1;min-height:0;gap:10px;align-items:stretch">
+            <div class="tank-meta">
+              <div class="tank-stat">
+                <span class="tank-stat-label">Percent Full</span>
+                <div class="tank-stat-val" id="tankPct">—</div>
+              </div>
+              <div class="tank-stat">
+                <span class="tank-stat-label">Volume</span>
+                <div class="tank-stat-val" id="tankLitres" style="font-size:14px">—</div>
+              </div>
+              <div class="tank-stat">
+                <span class="tank-stat-label">Depth to Water</span>
+                <div class="tank-stat-val" id="tankDist" style="font-size:14px">—</div>
+              </div>
+            </div>
+            <div class="tank-stage">
+              <svg id="tankSvg" viewBox="0 0 200 148" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4ec4d8"/>
+                    <stop offset="100%" stop-color="#1a5f78"/>
+                  </linearGradient>
+                  <clipPath id="tc"><rect x="28" y="6" width="144" height="136"/></clipPath>
+                </defs>
+                <!-- Left scale -->
+                <text x="5" y="74" text-anchor="middle" transform="rotate(-90,5,74)" fill="#567a4a" font-size="5.5" letter-spacing="1" font-family="'DM Mono',monospace">DEPTH</text>
+                <line x1="20" y1="6"   x2="28" y2="6"   stroke="#2e4a30" stroke-width="0.8"/>
+                <line x1="20" y1="40"  x2="28" y2="40"  stroke="#2e4a30" stroke-width="0.8"/>
+                <line x1="20" y1="74"  x2="28" y2="74"  stroke="#2e4a30" stroke-width="0.8"/>
+                <line x1="20" y1="108" x2="28" y2="108" stroke="#2e4a30" stroke-width="0.8"/>
+                <line x1="20" y1="142" x2="28" y2="142" stroke="#2e4a30" stroke-width="0.8"/>
+                <text x="18" y="9"   text-anchor="end" fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">0m</text>
+                <text x="18" y="43"  text-anchor="end" fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">.6m</text>
+                <text x="18" y="77"  text-anchor="end" fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">1.3m</text>
+                <text x="18" y="111" text-anchor="end" fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">1.9m</text>
+                <text x="18" y="145" text-anchor="end" fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">2.5m</text>
+                <!-- Walls -->
+                <rect x="16" y="2"  width="12" height="144" rx="2" fill="#152318" stroke="#2e4a30" stroke-width="1"/>
+                <rect x="172" y="2" width="12" height="144" rx="2" fill="#152318" stroke="#2e4a30" stroke-width="1"/>
+                <rect x="16" y="142" width="168" height="10" rx="2" fill="#152318" stroke="#2e4a30" stroke-width="1"/>
+                <!-- Interior bg -->
+                <rect x="28" y="6" width="144" height="136" fill="#0a1409"/>
+                <!-- Right scale -->
+                <line x1="172" y1="6"   x2="180" y2="6"   stroke="#2e4a30" stroke-width="0.8"/>
+                <line x1="172" y1="40"  x2="180" y2="40"  stroke="#2e4a30" stroke-width="0.8"/>
+                <line x1="172" y1="74"  x2="180" y2="74"  stroke="#2e4a30" stroke-width="0.8"/>
+                <line x1="172" y1="108" x2="180" y2="108" stroke="#2e4a30" stroke-width="0.8"/>
+                <line x1="172" y1="142" x2="180" y2="142" stroke="#2e4a30" stroke-width="0.8"/>
+                <text x="182" y="9"   fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">100%</text>
+                <text x="182" y="43"  fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">75%</text>
+                <text x="182" y="77"  fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">50%</text>
+                <text x="182" y="111" fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">25%</text>
+                <text x="182" y="145" fill="#567a4a" font-size="6" font-family="'DM Mono',monospace">0%</text>
+                <!-- Water body -->
+                <rect id="tw" x="28" y="142" width="144" height="0" fill="url(#wg)" clip-path="url(#tc)"/>
+                <!-- Waves -->
+                <g clip-path="url(#tc)">
+                  <g class="wave1"><path id="wp1" d="" fill="#7de8f0" opacity="0.3"/></g>
+                  <g class="wave2"><path id="wp2" d="" fill="#4ec4d8" opacity="0.18"/></g>
+                </g>
+                <!-- Litres overlay -->
+                <g clip-path="url(#tc)">
+                  <text id="tw-litres" x="100" y="142" text-anchor="middle" fill="#05111d" font-size="13" font-weight="800" font-family="'Rajdhani',sans-serif"></text>
+                </g>
+                <!-- Surface line -->
+                <line id="wsl" x1="26" y1="142" x2="174" y2="142" stroke="rgba(255,255,255,0.2)" stroke-width="0.7" stroke-dasharray="3,3"/>
+                <!-- Dist label -->
+                <text id="dist-label" x="26" y="142" text-anchor="end" fill="rgba(245,151,45,0.75)" font-size="6" font-weight="600" font-family="'DM Mono',monospace"></text>
+                <!-- Sensor beam -->
+                <line id="sb" x1="100" y1="6" x2="100" y2="142" stroke="rgba(245,151,45,0.3)" stroke-width="0.7" stroke-dasharray="2,3"/>
+                <!-- Sensor dot -->
+                <circle cx="100" cy="4" r="3.5" fill="none" stroke="#f5972d" stroke-width="1.2"/>
+                <circle cx="100" cy="4" r="1.5" fill="#f5972d"/>
+                <!-- No data -->
+                <text id="tank-no-data" x="100" y="78" text-anchor="middle" fill="rgba(213,232,194,0.15)" font-size="9" font-family="'DM Mono',monospace">No data</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /col-centre -->
+
+
+    <!-- ════════════════════════════════════════════
+         COL 3 — RIGHT: Energy + Comfort
+         ════════════════════════════════════════════ -->
+    <div class="tho-col col-right">
+
+      <!-- Battery Reserve Logic -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>Battery Reserve Logic</span>
+          <span class="panel-title-badge" id="batteryBadge">—</span>
+        </div>
+        <div class="battery-grid" id="batteryMetrics">
+          <div class="metric"><div class="metric-label">SOC</div><div class="metric-value accent">—</div></div>
+          <div class="metric"><div class="metric-label">Remaining</div><div class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">Usable</div><div class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">Reserve</div><div class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">To Reserve</div><div class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">Blackout Run</div><div class="metric-value">—</div></div>
+        </div>
+      </div>
+
+      <!-- Lighting Constellation -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>Lighting Constellation</span>
+          <span class="panel-title-badge" id="lightsBadge">—</span>
+        </div>
+        <div class="lights-grid" id="lightsGrid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- Interior Atmosphere -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>Interior Atmosphere</span>
+          <span class="panel-title-badge">SENSIBO</span>
+        </div>
+        <div class="atmo-list" id="atmoList">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+    </div><!-- /col-right -->
+
+  </div><!-- /tho-hero -->
+
+</div><!-- /tho-wrap -->
+
+<script>
+  /* ── Helpers ─────────────────────────────────────── */
+  const fmt  = (v, u='') => v === null || v === undefined || Number.isNaN(v) ? '—' : `${v}${u}`;
+  const fmtP = (v, u='') => v === null || v === undefined || Number.isNaN(v) ? '—' : `${parseFloat(Number(v).toPrecision(3))}${u}`;
+  const safe = (v) => v === null || v === undefined ? '—' : v;
+
+  let lastFetchTime = null;
+
+  /* ── Status indicators ───────────────────────────── */
+  function setStatus(state, text) {
+    const dot = document.getElementById('statusDot');
+    const label = document.getElementById('statusText');
+    dot.className = 'status-dot ' + state;
+    label.textContent = text;
+  }
+
+  function updateAgeDisplay() {
+    if (!lastFetchTime) return;
+    const ageSec = Math.round((Date.now() - lastFetchTime) / 1000);
+    const ageText = ageSec < 60 ? `${ageSec}s ago` : `${Math.round(ageSec/60)}m ago`;
+    const isStale = (Date.now() - lastFetchTime) > 720000;
+    document.getElementById('fetchedAt').textContent = `Fetched ${ageText}`;
+    setStatus(isStale ? 'stale' : 'nominal', isStale ? 'STALE — DATA OVERDUE' : `Updated ${ageText}`);
+  }
+
+  /* ── Wave path ───────────────────────────────────── */
+  function wavePath(wy, amp, bot) {
+    let d = `M -80,${wy}`;
+    for (let x = -80; x < 250; x += 80) {
+      d += ` Q ${x+20},${wy-amp} ${x+40},${wy} Q ${x+60},${wy+amp} ${x+80},${wy}`;
+    }
+    return d + ` L 250,${bot} L -80,${bot} Z`;
+  }
+
+  /* ── Water tank colour ───────────────────────────── */
+  function setWaterColor(pct) {
+    const g = document.getElementById('wg');
+    if (!g) return;
+    const stops = g.querySelectorAll('stop');
+    if (pct >= 60)      { stops[0].setAttribute('stop-color','#4ec4d8'); stops[1].setAttribute('stop-color','#1a5f78'); }
+    else if (pct >= 25) { stops[0].setAttribute('stop-color','#5cb8be'); stops[1].setAttribute('stop-color','#2a5860'); }
+    else                { stops[0].setAttribute('stop-color','#e87040'); stops[1].setAttribute('stop-color','#a03010'); }
+  }
+
+  /* ── Render tank ─────────────────────────────────── */
+  function renderTank(d) {
+    const pct    = parseFloat(d.percent)     || 0;
+    const litres = parseInt(d.litres)        || 0;
+    const dist   = parseFloat(d.distance_cm) || 0;
+    const TOP=6, BOT=142, H=136;
+    const waterH = Math.max(0, H * pct / 100);
+    const waterY = BOT - waterH;
+
+    document.getElementById('tw').setAttribute('y', waterY);
+    document.getElementById('tw').setAttribute('height', waterH);
+    document.getElementById('sb').setAttribute('y2', waterY);
+    document.getElementById('wp1').setAttribute('d', wavePath(waterY, 3, BOT));
+    document.getElementById('wp2').setAttribute('d', wavePath(waterY, 2, BOT));
+    document.getElementById('wsl').setAttribute('y1', waterY);
+    document.getElementById('wsl').setAttribute('y2', waterY);
+
+    const distEl = document.getElementById('dist-label');
+    distEl.setAttribute('y', Math.max(TOP+8, waterY+4));
+    distEl.textContent = dist > 0 ? `${dist.toFixed(1)}cm` : '';
+
+    const litresEl = document.getElementById('tw-litres');
+    if (waterH >= 20) {
+      litresEl.setAttribute('y', waterY + waterH/2 + 5);
+      litresEl.textContent = `${litres.toLocaleString()} L`;
+    } else { litresEl.textContent = ''; }
+
+    document.getElementById('tank-no-data').style.display = 'none';
+    setWaterColor(pct);
+
+    document.getElementById('tankPct').textContent = `${pct.toFixed(1)}%`;
+    const infoColor = pct >= 60 ? 'var(--info)' : pct >= 25 ? 'var(--fg1)' : 'var(--danger)';
+    document.getElementById('tankPct').style.color = infoColor;
+    document.getElementById('tankLitres').textContent = `${litres.toLocaleString()} L`;
+    document.getElementById('tankDist').textContent = dist > 0 ? `${dist.toFixed(1)} cm` : '—';
+  }
+
+  /* ── Metric builder ──────────────────────────────── */
+  function mkMetric(label, value, cls='', sub='') {
+    return `<div class="metric">
+      <div class="metric-label">${label}</div>
+      <div class="metric-value ${cls}">${value}</div>
+      ${sub ? `<div class="metric-sub">${sub}</div>` : ''}
+    </div>`;
+  }
+
+  /* ── Power bar builder ───────────────────────────── */
+  function mkPowerRow(label, value, maxKw, color, modeTag='') {
+    const pct = Math.max(2, Math.min(100, (Math.abs(value||0) / maxKw) * 100));
+    const valStr = fmtP(value, ' kW');
+    return `<div class="power-row">
+      <div class="power-row-head">
+        <span class="power-label">${label}</span>
+        <span style="display:flex;align-items:center;gap:5px">
+          <span class="power-value">${valStr}</span>
+          ${modeTag ? `<span class="mode-tag ${modeTag}">${modeTag}</span>` : ''}
+        </span>
+      </div>
+      <div class="power-bar-track">
+        <div class="power-bar-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }
+
+  /* ── Main render ─────────────────────────────────── */
+  function render(data) {
+    const w  = data.weather || {};
+    const p  = data.power   || {};
+    const en = p.enphase    || {};
+    const si = p.sigen      || {};
+    const dr = p.derived    || {};
+    const bc = p.battery_config || {};
+    const forecast = (data.forecast || []).slice(0, 3);
+    const ac       = data.ac     || [];
+    const lights   = data.lights || [];
+    const garden   = data.garden || [];
+
+    /* Timestamp */
+    document.getElementById('capturedAt').textContent = `Snapshot — ${safe(data.captured_at)}`;
+    lastFetchTime = Date.now();
+    updateAgeDisplay();
+
+    /* ── WEATHER ── */
+    const gust = w.gust_kmh ? ` / Gust ${fmt(w.gust_kmh,' km/h')}` : '';
+    document.getElementById('weatherBadge').textContent = `${fmt(w.outdoor_temp_c,'°C')} · ${fmt(w.outdoor_humidity_pct,'%')} RH`;
+    document.getElementById('weatherMetrics').innerHTML =
+      mkMetric('Outside Temp', fmt(w.outdoor_temp_c,'°C'), 'accent') +
+      mkMetric('Wind', fmt(w.wind_kmh,' km/h'), '', gust) +
+      mkMetric('Humidity', fmt(w.outdoor_humidity_pct,'%'), '') +
+      mkMetric('Rain Today', fmt(w.rain_day_mm ?? 0,' mm'), w.rain_day_mm > 0 ? 'info' : '') +
+      mkMetric('Solar W/m²', fmt(w.solar_wm2,''), 'accent') +
+      mkMetric('Pressure', fmt(w.pressure_hpa,' hPa'), '');
+
+    /* ── POWER ── */
+    const gridMode    = (si.grid_mode    || '').toLowerCase();
+    const battMode    = (si.battery_mode || '').toLowerCase();
+    const gridSign    = gridMode === 'export' ? -Math.abs(si.grid_power_kw) : Math.abs(si.grid_power_kw || 0);
+    document.getElementById('gridBadge').textContent = `Solar ${fmtP(en.current_power_kw,' kW')} · Grid ${gridMode}`;
+    document.getElementById('powerStack').innerHTML =
+      mkPowerRow('Solar Generation', en.current_power_kw, 12, '#f5972d') +
+      mkPowerRow('Home Load', dr.home_load_kw, 12, '#8aad78') +
+      mkPowerRow('Grid', si.grid_power_kw, 12, gridMode==='export' ? '#4a9c2a' : '#e05252', gridMode || '');
+
+    /* ── GARDEN / SOIL ── */
+    const runningZones = (garden || []).filter(z => z.status === 'running').length;
+    document.getElementById('gardenBadge').textContent = runningZones > 0 ? `${runningZones} zone running` : 'All idle';
+    document.getElementById('soilCards').innerHTML =
+      `<div class="soil-card"><div class="soil-label">Soil CH1</div><div class="soil-value">${fmt(w.soil_1_pct,'%')}</div></div>` +
+      `<div class="soil-card"><div class="soil-label">Soil CH2</div><div class="soil-value">${fmt(w.soil_2_pct,'%')}</div></div>` +
+      `<div class="soil-card"><div class="soil-label">UV Index</div><div class="soil-value">${fmt(w.uvi)}</div></div>` +
+      `<div class="soil-card"><div class="soil-label">Solar W/m²</div><div class="soil-value">${fmt(w.solar_wm2)}</div></div>`;
+    document.getElementById('gardenList').innerHTML = garden.slice(0,6).map(z =>
+      `<div class="garden-row">
+        <span class="garden-zone">${safe(z.name)}</span>
+        <span class="garden-status ${z.status === 'running' ? 'running' : ''}">${safe(z.time)}</span>
+      </div>`
+    ).join('');
+
+    /* ── HOUSE ROOMS + FORECAST ── */
+    const houseStage = document.getElementById('houseStage');
+    // Build room cards (2 AC rooms + 1 solar summary = 3 cards, 2 rows)
+    const roomCards = ac.map(room => {
+      const hasAQ = room.co2 != null || room.iaq != null || room.tvoc != null;
+      const aqHtml = hasAQ ? `<div class="ac-sensors-row">
+        <div class="ac-sensor"><span class="ac-sensor-label">CO₂</span><span class="ac-sensor-val">${fmt(room.co2)}<span style="font-size:9px;color:var(--fg3)"> ppm</span></span></div>
+        <div class="ac-sensor"><span class="ac-sensor-label">IAQ</span><span class="ac-sensor-val">${fmt(room.iaq)}</span></div>
+        <div class="ac-sensor"><span class="ac-sensor-label">TVOC</span><span class="ac-sensor-val">${fmt(room.tvoc)}</span></div>
+      </div>` : '';
+      return `<div class="room-card ${room.on ? 'ac-on' : ''}">
+        <div>
+          <div class="room-name">${safe(room.name)}</div>
+          <div class="room-temp">${fmt(room.temp_c,'°')}</div>
+        </div>
+        <div class="room-meta">
+          <div class="room-meta-line">${fmt(room.humidity_pct,'%')} RH</div>
+          <div class="room-ac-badge ${room.on ? 'on' : ''}">AC ${room.on ? 'ON' : 'OFF'} · ${safe(room.mode)} · ${fmt(room.target_c,'°')} target</div>
+          ${aqHtml}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Solar summary card
+    const battPower = si.battery_power_kw;
+    const battPowerSign = battMode === 'charging' ? '+' : battMode === 'discharging' ? '−' : '';
+    const solarCard = `<div class="solar-card">
+      <div>
+        <div class="room-name" style="color:var(--accent-dim)">Solar Generation</div>
+        <div class="room-temp" style="color:var(--accent)">${fmtP(en.current_power_kw,' kW')}</div>
+      </div>
+      <div class="room-meta">
+        <div class="room-meta-line">Today ${fmtP(en.energy_today_kwh,' kWh')}</div>
+        <div class="room-meta-line">Battery ${battPowerSign}${fmtP(Math.abs(battPower)||0,' kW')} / ${safe(si.battery_mode)}</div>
+        <div class="room-meta-line">Grid ${fmtP(si.grid_power_kw,' kW')} / ${safe(si.grid_mode)}</div>
+      </div>
+    </div>`;
+
+    // Forecast ribbon
+    const forecastHtml = `<div class="forecast-ribbon">` +
+      (forecast.length ? forecast.map(day => `
+        <div class="forecast-card">
+          <div class="forecast-day">${safe(day.label)}</div>
+          <div class="forecast-condition">${safe(day.condition)}</div>
+          <div class="forecast-temps">${fmt(day.temp_max_c,'°')} / ${fmt(day.temp_min_c,'°')}</div>
+          <div class="forecast-meta">Rain ${fmt(day.rain_chance_pct,'%')} · ${fmt(day.rain_min_mm)}&ndash;${fmt(day.rain_max_mm)} mm · UV ${fmt(day.uv_max)} ${safe(day.uv_category)}${day.fire_danger ? ` · Fire: ${day.fire_danger}` : ''}</div>
+        </div>`).join('') :
+        `<div class="forecast-card"><div class="forecast-day">Forecast</div><div class="forecast-condition">Unavailable</div></div>`) +
+      `</div>`;
+
+    houseStage.innerHTML = roomCards + solarCard + forecastHtml;
+
+    /* ── BATTERY ── */
+    document.getElementById('batteryBadge').textContent = `SOC ${fmt(si.battery_soc_pct,'%')} · ${battMode}`;
+    document.getElementById('batteryMetrics').innerHTML =
+      mkMetric('SOC', fmt(si.battery_soc_pct,'%'), 'accent') +
+      mkMetric('Remaining', fmt(si.battery_remaining_kwh,' kWh'), '') +
+      mkMetric('Usable', fmt(si.battery_usable_remaining_kwh,' kWh'), 'info') +
+      mkMetric('Reserve', fmt(bc.reserve_kwh,' kWh'), '') +
+      mkMetric('To Reserve', safe(si.time_to_reserve_human), si.time_to_reserve_human && si.time_to_reserve_human !== '—' ? 'accent' : '') +
+      mkMetric('Blackout Run', safe(dr.blackout_runtime_human), dr.blackout_runtime_hours > 2 ? 'forest' : 'danger');
+
+    /* ── LIGHTS ── */
+    const onCount = lights.filter(l => l.on).length;
+    document.getElementById('lightsBadge').textContent = `${onCount}/${lights.length} on`;
+    document.getElementById('lightsGrid').innerHTML = lights.map(l =>
+      `<div class="light-chip ${l.on ? 'on' : ''} ${!l.reachable ? 'unreachable' : ''}">
+        <div class="light-dot"></div>
+        <div class="light-name">${safe(l.name)}</div>
+      </div>`
+    ).join('');
+
+    /* ── INTERIOR ATMOSPHERE ── */
+    document.getElementById('atmoList').innerHTML = ac.map(room => {
+      const hasAQ = room.co2 != null || room.iaq != null || room.tvoc != null;
+      const aqHtml = hasAQ ? `<div class="atmo-sensors">
+        <div class="atmo-sensor"><span class="atmo-sensor-label">CO₂</span><span class="atmo-sensor-val">${fmt(room.co2)}<span style="font-size:9px;color:var(--fg3)"> ppm</span></span></div>
+        <div class="atmo-sensor"><span class="atmo-sensor-label">IAQ</span><span class="atmo-sensor-val">${fmt(room.iaq)}</span></div>
+        <div class="atmo-sensor"><span class="atmo-sensor-label">TVOC</span><span class="atmo-sensor-val">${fmt(room.tvoc)}</span></div>
+      </div>` : '';
+      return `<div class="atmo-room">
+        <div class="atmo-room-top">
+          <div class="atmo-room-name">${safe(room.name)}</div>
+          <div class="atmo-room-ac ${room.on ? 'on' : ''}">AC ${room.on ? 'ON' : 'OFF'} · ${safe(room.mode)}${room.target_c != null ? ` · ${fmt(room.target_c,'°')} target` : ''}</div>
+        </div>
+        <div class="atmo-primary">
+          <div class="atmo-temp">${fmt(room.temp_c,'°')}</div>
+          <div class="atmo-hum">${fmt(room.humidity_pct,'%')} RH</div>
+        </div>
+        ${aqHtml}
+      </div>`;
+    }).join('');
+  }
+
+  /* ── Data loading ─────────────────────────────────── */
+  async function loadDashboard() {
+    setStatus('loading', 'Loading…');
+    try {
+      const res = await fetch('/snapshot', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      render(data);
+    } catch(e) {
+      setStatus('stale', `Error: ${e.message}`);
+      document.getElementById('statusText').classList.add('stale-warning');
+    }
+  }
+
+  async function loadTankData() {
+    try {
+      const res = await fetch('/tank/snapshot', { cache: 'no-store' });
+      if (!res.ok) return;
+      renderTank(await res.json());
+    } catch(_) {}
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('refreshBtn');
+    btn.disabled = true;
+    btn.textContent = 'Refreshing…';
+    await Promise.all([loadDashboard(), loadTankData()]);
+    btn.disabled = false;
+    btn.textContent = 'Refresh';
+  });
+
+  /* ── Boot & intervals ─────────────────────────────── */
+  loadDashboard();
+  loadTankData();
+  setInterval(loadDashboard,   300000);
+  setInterval(loadTankData,    300000);
+  setInterval(updateAgeDisplay, 15000);
+
+
+
+</script>
+</body>
+</html>

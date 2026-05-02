@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  
+  <circle cx="40" cy="40" r="38" stroke="#f5972d" stroke-width="1.5" fill="#0d1a0f"></circle>
+  <circle cx="40" cy="40" r="32" stroke="#2e4a30" stroke-width="0.75" fill="none"></circle>
+  
+  <path id="arcTop" d="M 8,40 A 32,32 0 0,1 72,40" fill="none"></path>
+  <text font-family="&#39;Rajdhani&#39;, sans-serif" font-size="7" font-weight="600" letter-spacing="3" fill="#8aad78">
+    <textPath href="#arcTop" startOffset="4%">TEMPORAL HABITAT OVERSIGHT</textPath>
+  </text>
+  
+  <path id="arcBot" d="M 72,44 A 32,32 0 0,1 8,44" fill="none"></path>
+  <text font-family="&#39;Special Elite&#39;, serif" font-size="6.5" fill="#567a4a">
+    <textPath href="#arcBot" startOffset="8%">BLUE MOUNTAINS · DIVISION VII</textPath>
+  </text>
+  
+  <circle cx="40" cy="40" r="14" stroke="#2e4a30" stroke-width="1" fill="none"></circle>
+  
+  <line x1="40" y1="27" x2="40" y2="30" stroke="#4a7a4e" stroke-width="1"></line>
+  <line x1="40" y1="50" x2="40" y2="53" stroke="#4a7a4e" stroke-width="1"></line>
+  <line x1="27" y1="40" x2="30" y2="40" stroke="#4a7a4e" stroke-width="1"></line>
+  <line x1="50" y1="40" x2="53" y2="40" stroke="#4a7a4e" stroke-width="1"></line>
+  
+  <line x1="40" y1="40" x2="40" y2="30" stroke="#f5972d" stroke-width="1.5" stroke-linecap="round"></line>
+  <line x1="40" y1="40" x2="48" y2="36" stroke="#d4e8c2" stroke-width="1" stroke-linecap="round"></line>
+  <line x1="40" y1="40" x2="34" y2="46" stroke="#8aad78" stroke-width="0.75" stroke-linecap="round"></line>
+  <line x1="40" y1="40" x2="44" y2="29" stroke="#ffd966" stroke-width="0.75" stroke-dasharray="2,1.5" stroke-linecap="round"></line>
+  <circle cx="40" cy="40" r="2" fill="#f5972d"></circle>
+  
+  <circle cx="40" cy="18" r="1.5" fill="#f5972d"></circle>
+  <circle cx="40" cy="62" r="1.5" fill="#f5972d"></circle>
+  <circle cx="18" cy="40" r="1.5" fill="#f5972d"></circle>
+  <circle cx="62" cy="40" r="1.5" fill="#f5972d"></circle>
+</svg>

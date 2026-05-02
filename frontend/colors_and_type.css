@@ -1,0 +1,379 @@
+/**
+ * Temporal Habitat Oversight — Design System
+ * colors_and_type.css
+ *
+ * All CSS custom properties for the THO design system.
+ * Inspired by: Loki TVA aesthetic × Australian Eucalyptus forest
+ * Palette: Deep forest greens + TVA amber/gold accents
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Space+Grotesk:wght@300;400;500;600;700&family=Special+Elite&display=swap');
+
+/* ─────────────────────────────────────────────
+   ROOT TOKENS
+   ───────────────────────────────────────────── */
+:root {
+
+  /* ── COLOUR: Backgrounds ── */
+  --bg-base:        #0d1a0f;   /* near-black forest — page bg */
+  --bg-surface:     #152318;   /* dark green — card/panel bg   */
+  --bg-raised:      #1e3020;   /* elevated panels, dropdowns   */
+  --bg-overlay:     rgba(0,0,0,0.65); /* modal scrim         */
+  --bg-inset:       #0a1409;   /* inset wells, code blocks     */
+
+  /* ── COLOUR: Borders ── */
+  --border:         #2e4a30;   /* default border               */
+  --border-subtle:  #1f3321;   /* very subtle dividers         */
+  --border-active:  #4a7a4e;   /* focused / hover border       */
+  --border-accent:  #9c5a12;   /* amber-tinted border          */
+
+  /* ── COLOUR: Foreground / Text ── */
+  --fg1:            #d4e8c2;   /* primary text — sage white    */
+  --fg2:            #8aad78;   /* secondary text — mid green   */
+  --fg3:            #567a4a;   /* tertiary / disabled          */
+  --fg-inverse:     #0d1a0f;   /* text on accent backgrounds   */
+
+  /* ── COLOUR: Accent — TVA Amber ── */
+  --accent:         #f5972d;   /* primary amber CTA / alert    */
+  --accent-hover:   #f7ab52;   /* lighter on hover             */
+  --accent-dim:     #9c5a12;   /* dimmed amber — bg use        */
+  --accent-glow:    rgba(245,151,45,0.18); /* glow halo       */
+  --accent-text:    #ffd180;   /* amber-tinted readable text   */
+
+  /* ── COLOUR: Gold (Loki / decorative) ── */
+  --gold:           #ffd966;   /* gold — decorative headers    */
+  --gold-dim:       #c9a227;   /* dimmer gold                  */
+
+  /* ── COLOUR: Forest (success / nature) ── */
+  --forest:         #397c1b;   /* bright forest green          */
+  --forest-mid:     #4a9c2a;   /* mid green — active success   */
+  --forest-deep:    #2a4020;   /* deep canopy                  */
+  --forest-glow:    rgba(74,156,42,0.18);
+
+  /* ── COLOUR: Semantic states ── */
+  --danger:         #e05252;   /* error / pruning alert        */
+  --danger-dim:     rgba(224,82,82,0.15);
+  --warning:        #f5972d;   /* same as accent — watch       */
+  --info:           #4a9fd4;   /* timeline / info callouts     */
+  --info-dim:       rgba(74,159,212,0.15);
+  --success:        #4a9c2a;   /* same as forest-mid           */
+  --success-dim:    rgba(74,156,42,0.15);
+
+  /* ── COLOUR: Scan / CRT effects ── */
+  --crt-amber:      #ffb347;   /* CRT phosphor amber           */
+  --crt-green:      #39ff6e;   /* CRT phosphor green           */
+  --scanline:       rgba(0,0,0,0.12);
+
+  /* ─────────────────────────────────────────────
+     TYPOGRAPHY
+     ───────────────────────────────────────────── */
+
+  /* Font families */
+  --font-display:   'Rajdhani', 'Trebuchet MS', sans-serif;
+  --font-body:      'DM Mono', 'Courier New', monospace;
+  --font-ui:        'Space Grotesk', 'Gill Sans', sans-serif;
+  --font-stamp:     'Special Elite', 'Courier', serif;
+
+  /* Type scale — base 14px */
+  --text-xs:        0.75rem;   /* 10.5px — micro labels        */
+  --text-sm:        0.875rem;  /* 12.25px — small UI           */
+  --text-base:      1rem;      /* 14px — body                  */
+  --text-md:        1.125rem;  /* 15.75px — medium             */
+  --text-lg:        1.25rem;   /* 17.5px — large body          */
+  --text-xl:        1.5rem;    /* 21px — card titles           */
+  --text-2xl:       2rem;      /* 28px — section headers       */
+  --text-3xl:       2.75rem;   /* 38.5px — display             */
+  --text-4xl:       3.5rem;    /* 49px — hero display          */
+
+  /* Line heights */
+  --lh-tight:       1.1;
+  --lh-snug:        1.3;
+  --lh-base:        1.5;
+  --lh-relaxed:     1.7;
+
+  /* Letter spacing */
+  --ls-tight:       -0.02em;
+  --ls-base:        0;
+  --ls-wide:        0.05em;
+  --ls-wider:       0.1em;
+  --ls-widest:      0.2em;    /* ALL CAPS headers — TVA style */
+
+  /* Font weights */
+  --fw-light:       300;
+  --fw-regular:     400;
+  --fw-medium:      500;
+  --fw-semibold:    600;
+  --fw-bold:        700;
+
+  /* ─────────────────────────────────────────────
+     SPACING SCALE
+     ───────────────────────────────────────────── */
+  --space-1:    4px;
+  --space-2:    8px;
+  --space-3:    12px;
+  --space-4:    16px;
+  --space-5:    20px;
+  --space-6:    24px;
+  --space-7:    28px;
+  --space-8:    32px;
+  --space-10:   40px;
+  --space-12:   48px;
+  --space-16:   64px;
+  --space-20:   80px;
+
+  /* ─────────────────────────────────────────────
+     BORDER RADIUS
+     ───────────────────────────────────────────── */
+  --radius-none:    0px;
+  --radius-sm:      2px;   /* badges, tags — very institutional */
+  --radius-base:    4px;   /* standard UI — cards, buttons, inputs */
+  --radius-md:      6px;   /* modals, larger panels */
+  --radius-lg:      8px;   /* large panels if needed */
+  /* NO radius values above 8px — not the THO aesthetic */
+
+  /* ─────────────────────────────────────────────
+     SHADOWS & GLOW
+     ───────────────────────────────────────────── */
+  --shadow-none:      none;
+  --shadow-inset:     inset 0 2px 4px rgba(0,0,0,0.4);
+  --shadow-inset-sm:  inset 0 1px 2px rgba(0,0,0,0.3);
+  --glow-accent:      0 0 12px rgba(245,151,45,0.25), 0 0 24px rgba(245,151,45,0.10);
+  --glow-accent-sm:   0 0 6px  rgba(245,151,45,0.3);
+  --glow-forest:      0 0 12px rgba(74,156,42,0.25);
+  --glow-danger:      0 0 12px rgba(224,82,82,0.25);
+  --glow-info:        0 0 12px rgba(74,159,212,0.25);
+
+  /* ─────────────────────────────────────────────
+     ANIMATION
+     ───────────────────────────────────────────── */
+  --ease-standard:    cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-decelerate:  cubic-bezier(0.0, 0, 0.2, 1);
+  --ease-accelerate:  cubic-bezier(0.4, 0, 1, 1);
+
+  --duration-fast:    100ms;
+  --duration-base:    150ms;
+  --duration-slow:    300ms;
+  --duration-xslow:   600ms;
+
+  /* ─────────────────────────────────────────────
+     LAYOUT
+     ───────────────────────────────────────────── */
+  --sidebar-width:    240px;
+  --topbar-height:    56px;
+  --content-max:      1200px;
+  --panel-padding:    24px;
+  --panel-padding-sm: 16px;
+  --grid-gutter:      24px;
+  --grid-margin:      48px;
+
+  /* ─────────────────────────────────────────────
+     Z-INDEX SCALE
+     ───────────────────────────────────────────── */
+  --z-base:       0;
+  --z-raised:     10;
+  --z-dropdown:   100;
+  --z-sticky:     200;
+  --z-overlay:    300;
+  --z-modal:      400;
+  --z-toast:      500;
+}
+
+/* ─────────────────────────────────────────────
+   SEMANTIC ELEMENT STYLES
+   ───────────────────────────────────────────── */
+
+/* Base reset for THO-themed documents */
+.tho-root,
+.tho-root * {
+  box-sizing: border-box;
+}
+
+.tho-root {
+  background-color: var(--bg-base);
+  color: var(--fg1);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--lh-base);
+}
+
+/* Headings */
+.tho-root h1,
+.tho-root h2,
+.tho-root h3,
+.tho-root h4,
+.tho-root h5,
+.tho-root h6 {
+  font-family: var(--font-display);
+  line-height: var(--lh-tight);
+  color: var(--fg1);
+  margin: 0;
+}
+
+.tho-root h1 {
+  font-size: var(--text-3xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+}
+
+.tho-root h2 {
+  font-size: var(--text-2xl);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+}
+
+.tho-root h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+}
+
+.tho-root h4 {
+  font-size: var(--text-lg);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-wide);
+  font-family: var(--font-ui);
+}
+
+.tho-root h5,
+.tho-root h6 {
+  font-size: var(--text-base);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-wide);
+  font-family: var(--font-ui);
+  color: var(--fg2);
+}
+
+/* Body text */
+.tho-root p {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--lh-relaxed);
+  color: var(--fg1);
+  margin: 0;
+}
+
+/* Code / data readout */
+.tho-root code,
+.tho-root pre,
+.tho-data {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--accent-text);
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
+/* Labels */
+.tho-label {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  color: var(--fg2);
+}
+
+/* Section title — TVA document style */
+.tho-section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  color: var(--fg3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--accent-dim);
+  margin-bottom: var(--space-4);
+}
+
+/* Accent display number */
+.tho-stat {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--fw-bold);
+  color: var(--accent);
+  letter-spacing: var(--ls-tight);
+  text-shadow: var(--glow-accent-sm);
+}
+
+/* Stamp / classified text */
+.tho-stamp {
+  font-family: var(--font-stamp);
+  letter-spacing: var(--ls-wide);
+  color: var(--accent-dim);
+  opacity: 0.7;
+}
+
+/* Links */
+.tho-root a {
+  color: var(--accent-text);
+  text-decoration: none;
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.tho-root a:hover {
+  color: var(--accent-hover);
+}
+
+/* Divider */
+.tho-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--space-6) 0;
+}
+
+.tho-divider--accent {
+  border-top-color: var(--accent-dim);
+}
+
+/* ─────────────────────────────────────────────
+   UTILITY CLASSES
+   ───────────────────────────────────────────── */
+
+/* Text colour utilities */
+.text-fg1    { color: var(--fg1); }
+.text-fg2    { color: var(--fg2); }
+.text-fg3    { color: var(--fg3); }
+.text-accent { color: var(--accent); }
+.text-gold   { color: var(--gold); }
+.text-forest { color: var(--forest); }
+.text-danger { color: var(--danger); }
+.text-info   { color: var(--info); }
+
+/* Background utilities */
+.bg-base     { background: var(--bg-base); }
+.bg-surface  { background: var(--bg-surface); }
+.bg-raised   { background: var(--bg-raised); }
+.bg-inset    { background: var(--bg-inset); }
+
+/* Border utilities */
+.border        { border: 1px solid var(--border); }
+.border-active { border: 1px solid var(--border-active); }
+.border-accent { border: 1px solid var(--border-accent); }
+
+/* Glow utilities */
+.glow-accent { box-shadow: var(--glow-accent); }
+.glow-forest { box-shadow: var(--glow-forest); }
+.glow-danger { box-shadow: var(--glow-danger); }
+
+/* Radius utilities */
+.rounded-none { border-radius: var(--radius-none); }
+.rounded-sm   { border-radius: var(--radius-sm); }
+.rounded      { border-radius: var(--radius-base); }
+.rounded-md   { border-radius: var(--radius-md); }
+
+/* Font utilities */
+.font-display { font-family: var(--font-display); }
+.font-body    { font-family: var(--font-body); }
+.font-ui      { font-family: var(--font-ui); }
+.font-stamp   { font-family: var(--font-stamp); }
+
+/* Uppercase tracking */
+.uppercase-tracked {
+  text-transform: uppercase;
+  letter-spacing: var(--ls-widest);
+}

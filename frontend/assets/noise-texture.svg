@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+  <filter id="noise">
+    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"></feTurbulence>
+    <feColorMatrix type="saturate" values="0"></feColorMatrix>
+    <feBlend in="SourceGraphic" mode="overlay" result="blend"></feBlend>
+    <feComposite in="blend" in2="SourceGraphic" operator="in"></feComposite>
+  </filter>
+  <rect width="200" height="200" fill="transparent" filter="url(#noise)" opacity="0.04"></rect>
+</svg>

@@ -16,13 +16,16 @@ deploy-frontend:
 	  --stack-name $(STACK_NAME) \
 	  --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketName`].OutputValue' \
 	  --output text --region $(REGION)))
-	@aws s3 cp frontend/index.html s3://$(FRONTEND_BUCKET)/index.html \
-	  --cache-control "no-store" --content-type "text/html; charset=utf-8" --region $(REGION)
-	@aws s3 cp frontend/loki.html s3://$(FRONTEND_BUCKET)/loki.html \
-	  --cache-control "no-store" --content-type "text/html; charset=utf-8" --region $(REGION)
+	@aws s3 sync frontend/ s3://$(FRONTEND_BUCKET)/ \
+	  --exclude ".DS_Store" \
+	  --exclude "*.DS_Store" \
+	  --cache-control "no-store" \
+	  --region $(REGION)
 	@aws s3 cp frontend/site.webmanifest s3://$(FRONTEND_BUCKET)/site.webmanifest \
 	  --cache-control "max-age=3600" --content-type "application/manifest+json" --region $(REGION)
 	@aws s3 sync frontend/icons/ s3://$(FRONTEND_BUCKET)/icons/ \
+	  --cache-control "max-age=31536000" --region $(REGION)
+	@aws s3 sync frontend/assets/ s3://$(FRONTEND_BUCKET)/assets/ \
 	  --cache-control "max-age=31536000" --region $(REGION)
 	@echo "Frontend deployed."
 
