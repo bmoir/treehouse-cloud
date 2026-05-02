@@ -107,7 +107,7 @@
       <div>
         <div class="eyebrow">Treehouse</div>
         <h1>Temporal Habitat Oversight</h1>
-        <div class="sub">Home telemetry — sky to ground, house centred. Data pushed from home every 5 minutes.</div>
+        <div class="sub">Home telemetry — sky to ground, house centred. Data pushed from home every 10 minutes.</div>
         <div class="update-bar">
           <div class="update-state" id="updateState">Loading…</div>
           <div class="controls">
@@ -236,8 +236,8 @@
       const ageText = ageSec < 60 ? `${ageSec}s ago` : `${Math.round(ageSec / 60)}m ago`;
       const el = document.getElementById('updateState');
       el.textContent = `Fetched ${ageText}`;
-      // Flag stale if data hasn't refreshed in > 12 minutes (2× push interval)
-      const isStale = lastFetchTime && (Date.now() - lastFetchTime) > 720000;
+      // Flag stale if data hasn't refreshed in > 25 minutes (2.5× push interval)
+      const isStale = lastFetchTime && (Date.now() - lastFetchTime) > 1500000;
       el.classList.toggle('stale', isStale);
       document.getElementById('fetchedAt').textContent = `Fetched ${ageText}`;
     }
@@ -339,7 +339,7 @@
 
     loadDashboard();
     loadTankData();
-    setInterval(loadDashboard, 300000);   // re-fetch every 5 minutes
+    setInterval(loadDashboard, 600000);   // re-fetch every 10 minutes
     setInterval(loadTankData,  300000);
     setInterval(updateAgeDisplay, 15000); // update the age counter
   </script>

@@ -1,7 +1,7 @@
 # Treehouse Cloud Dashboard
 
 Home telemetry dashboard running on AWS (Lambda + DynamoDB + API Gateway + CloudFront + S3).  
-Data is pushed from the home every 5 minutes. The dashboard auto-refreshes on the same interval.
+Data is pushed from the home every 10 minutes. The dashboard auto-refreshes on the same interval.
 
 Live URL: `https://d343mj1ly4j9wa.cloudfront.net/`
 
@@ -376,6 +376,6 @@ AWS_PROFILE=treehouse make outputs
 
 ## Data push cadence
 
-- **Home snapshot** (`/ingest`): every 5 minutes from the home server
+- **Home snapshot** (`/ingest`): every 10 minutes from the home server
 - **Water tank** (`/tank`): pushed by the ultrasonic sensor device on its own schedule
-- **Dashboard auto-refresh**: every 5 minutes; shows a stale warning if data is > 12 minutes old
+- **Dashboard auto-refresh**: every 10 minutes; shows a stale warning if data is > 25 minutes old
