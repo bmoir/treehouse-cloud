@@ -78,6 +78,20 @@
     .chip.on { color:var(--cream); border-color:rgba(240,181,94,.35); box-shadow:0 0 16px rgba(240,181,94,.08); }
     .footer-note { margin-top:8px; color:var(--muted); font-size:10px; letter-spacing:.11em; text-transform:uppercase; text-align:right; }
     .stale { color:#f28c8c !important; }
+    .ac-room { padding:10px 0; border-bottom:1px dashed rgba(231,177,86,.12); }
+    .ac-room:last-child { border-bottom:0; }
+    .ac-room-top { display:grid; grid-template-columns:1fr auto; align-items:baseline; margin-bottom:5px; }
+    .ac-room-name { font-size:11px; font-weight:700; color:var(--cream); letter-spacing:.14em; text-transform:uppercase; }
+    .ac-room-status { font-size:10px; color:var(--muted); letter-spacing:.06em; }
+    .ac-room-status.on { color:var(--amber); }
+    .ac-primary { display:flex; align-items:baseline; gap:10px; margin-bottom:8px; }
+    .ac-temp { font-size:clamp(28px,1.9vw,42px); font-weight:800; color:var(--amber); line-height:1; }
+    .ac-hum  { font-size:clamp(16px,1.1vw,22px); font-weight:700; color:var(--cream); }
+    .ac-sensors { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+    .ac-sensor { background:rgba(244,232,202,.03); border:1px solid rgba(231,177,86,.10); border-radius:10px; padding:5px 8px; }
+    .ac-slabel { display:block; color:var(--muted); font-size:9px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:2px; }
+    .ac-sval { font-size:clamp(13px,.95vw,17px); font-weight:700; color:var(--cream); }
+    .ac-sunit { font-size:.75em; font-weight:400; color:var(--muted); }
     .col-mid { grid-template-rows: 1fr 236px; }
     .tank-panel { display:flex; flex-direction:column; }
     .tank-stage { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; }
@@ -115,7 +129,7 @@
         <div class="panel"><div class="title">Garden / Soil / Watering</div><div class="terrain" id="soilCards"></div><div class="list" id="gardenList" style="margin-top:10px"></div></div>
       </div>
       <div class="col col-mid">
-        <div class="panel house-panel"><div class="title">House Core</div><div class="house-stage"><div class="sun-ring"></div><div class="horizon-line"></div><div class="ground-line"></div><div class="house" id="houseRooms"></div><div class="forecast-ribbon"><div class="forecast-title">3-Day Outlook / BOM</div><div class="forecast-grid" id="forecastStrip"></div></div></div><div class="footer-note">Retro-modern / TVA-inspired / cloud snapshot</div></div>
+        <div class="panel house-panel"><div class="title">Exterior Future</div><div class="house-stage"><div class="sun-ring"></div><div class="horizon-line"></div><div class="ground-line"></div><div class="house" id="houseRooms"></div><div class="forecast-ribbon"><div class="forecast-title">3-Day Outlook / BOM</div><div class="forecast-grid" id="forecastStrip"></div></div></div><div class="footer-note">Retro-modern / TVA-inspired / cloud snapshot</div></div>
         <div class="panel tank-panel">
           <div class="title">Water Tank Reserve</div>
           <div class="tank-stage">
@@ -189,7 +203,7 @@
       <div class="col">
         <div class="panel"><div class="title">Battery Reserve Logic</div><div class="metric-grid" id="batteryMetrics"></div></div>
         <div class="panel"><div class="title">Lighting Constellation</div><div class="lights-bar" id="lightsBar"></div></div>
-        <div class="panel"><div class="title">Interior Atmosphere</div><div class="list" id="acList"></div></div>
+        <div class="panel"><div class="title">Interior Atmosphere</div><div id="acList"></div></div>
       </div>
     </div>
   </div>
@@ -252,7 +266,11 @@
       document.getElementById('houseRooms').innerHTML = roomCards + `<div class="room"><div><h3>Solar Gen</h3><div class="temp">${fmtP(p.enphase.current_power_kw, 'kW')}</div></div><div class="meta"><div>Battery ${fmtP(p.sigen.battery_power_kw, ' kW')} / ${p.sigen.battery_mode}</div><div>Grid ${fmtP(p.sigen.grid_power_kw, ' kW')} / ${p.sigen.grid_mode}</div><div>Home ${fmtP(p.derived.home_load_kw, ' kW')}</div></div></div>`;
       document.getElementById('batteryMetrics').innerHTML = [metric('SOC', fmt(p.sigen.battery_soc_pct, '%')),metric('Remaining', fmt(p.sigen.battery_remaining_kwh, ' kWh')),metric('Usable', fmt(p.sigen.battery_usable_remaining_kwh, ' kWh')),metric('Reserve', fmt(p.battery_config.reserve_kwh, ' kWh')),metric('To Reserve', p.sigen.time_to_reserve_human || '—'),metric('Blackout', p.derived.blackout_runtime_human || '—')].join('');
       document.getElementById('lightsBar').innerHTML = (data.lights || []).map(light => `<div class="chip ${light.on ? 'on' : ''}">${light.name} · ${light.on ? 'On' : 'Off'}</div>`).join('');
-      document.getElementById('acList').innerHTML = (data.ac || []).map(room => `<div class="row"><strong>${room.name}</strong><span>${fmt(room.temp_c, '°C')} · ${fmt(room.humidity_pct, '%')} · ${room.on ? 'AC on' : 'AC off'}</span></div>`).join('');
+      document.getElementById('acList').innerHTML = (data.ac || []).map(room => {
+        const hasAQ = room.co2 != null || room.iaq != null || room.tvoc != null;
+        const aqRow = hasAQ ? `<div class="ac-sensors"><div class="ac-sensor"><span class="ac-slabel">CO₂</span><span class="ac-sval">${fmt(room.co2)}<span class="ac-sunit"> ppm</span></span></div><div class="ac-sensor"><span class="ac-slabel">IAQ</span><span class="ac-sval">${fmt(room.iaq)}</span></div><div class="ac-sensor"><span class="ac-slabel">TVOC</span><span class="ac-sval">${fmt(room.tvoc)}</span></div></div>` : '';
+        return `<div class="ac-room"><div class="ac-room-top"><div class="ac-room-name">${room.name || '—'}</div><div class="ac-room-status ${room.on ? 'on' : ''}">AC ${room.on ? 'ON' : 'OFF'} · ${room.mode || '—'}${room.target_c != null ? ` · ${fmt(room.target_c, '° target')}` : ''}</div></div><div class="ac-primary"><div class="ac-temp">${fmt(room.temp_c, '°')}</div><div class="ac-hum">${fmt(room.humidity_pct, '%')} RH</div></div>${aqRow}</div>`;
+      }).join('');
     }
 
     function wavePath(wy, amp, bot) {
