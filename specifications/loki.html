@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Treehouse</title>
+  <meta name="application-name" content="Treehouse" />
+  <meta name="apple-mobile-web-app-title" content="Treehouse" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#121115" />
+  <link rel="manifest" href="./site.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icons/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
+  <style>
+    :root {
+      --bg-1: #121115;
+      --bg-2: #1c1a22;
+      --bg-3: #231f2c;
+      --panel: rgba(27, 24, 33, 0.82);
+      --panel-2: rgba(39, 34, 49, 0.88);
+      --line: rgba(219, 187, 112, 0.22);
+      --gold: #d9b15f;
+      --gold-2: #f1da95;
+      --green: #7dc07b;
+      --teal: #79c8c2;
+      --red: #f28c8c;
+      --text: #f7edd1;
+      --muted: #b8ac8d;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: #0d0c10; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(217, 177, 95, 0.12), transparent 24%),
+        radial-gradient(circle at 85% 18%, rgba(121, 200, 194, 0.08), transparent 24%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,0.025), transparent 18%),
+        repeating-linear-gradient(to bottom, rgba(255,255,255,0.016), rgba(255,255,255,0.016) 1px, transparent 1px, transparent 4px);
+      opacity: 0.4;
+      mix-blend-mode: soft-light;
+    }
+
+    .app {
+      width: min(100%, 460px);
+      margin: 0 auto;
+      padding: calc(var(--safe-top) + 14px) 14px calc(var(--safe-bottom) + 32px);
+      position: relative;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: -14px -14px 14px;
+      padding: calc(var(--safe-top) + 12px) 14px 12px;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(180deg, rgba(18,17,21,0.92), rgba(18,17,21,0.6), rgba(18,17,21,0));
+    }
+
+    .eyebrow,
+    .section-label,
+    .tiny {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 10vw, 48px);
+      line-height: 0.95;
+      letter-spacing: 0.03em;
+      color: var(--gold-2);
+      text-transform: uppercase;
+      text-shadow: 0 0 24px rgba(217, 177, 95, 0.16);
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      max-width: 32ch;
+    }
+
+    .ring {
+      position: absolute;
+      right: -24px;
+      top: 54px;
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      border: 1px solid rgba(217, 177, 95, 0.34);
+      box-shadow: inset 0 0 24px rgba(217, 177, 95, 0.08), 0 0 32px rgba(217, 177, 95, 0.08);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .ring::before,
+    .ring::after {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 1px dashed rgba(217, 177, 95, 0.22);
+      border-radius: 50%;
+    }
+
+    .ring::after { inset: 28px; }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
+      overflow: hidden;
+    }
+
+    .panel-inner { padding: 14px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .hero-card {
+      padding: 14px;
+      min-height: 220px;
+      background:
+        radial-gradient(circle at 84% 18%, rgba(217, 177, 95, 0.12), transparent 20%),
+        linear-gradient(180deg, rgba(51, 43, 31, 0.34), rgba(20, 18, 25, 0));
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 12px;
+      align-items: end;
+      margin-top: 12px;
+    }
+
+    .main-reading {
+      font-size: 54px;
+      line-height: 0.9;
+      font-weight: 800;
+      color: var(--gold-2);
+    }
+
+    .support-reading {
+      display: grid;
+      gap: 8px;
+    }
+
+    .kpi {
+      padding: 11px 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(217, 177, 95, 0.12);
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 760;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .muted { color: var(--muted); }
+    .ok { color: var(--green); }
+    .warn { color: var(--red); }
+    .cool { color: var(--teal); }
+
+    .meta-row,
+    .list-row {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px dashed rgba(217, 177, 95, 0.12);
+      font-size: 13px;
+    }
+
+    .meta-row:last-child,
+    .list-row:last-child { border-bottom: 0; }
+
+    .meta-row strong,
+    .list-row strong {
+      color: var(--text);
+      font-weight: 620;
+    }
+
+    .value-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(217, 177, 95, 0.14);
+      background: rgba(255,255,255,0.03);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(217, 177, 95, 0.12);
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      box-shadow: 0 0 18px rgba(217, 177, 95, 0.2);
+    }
+
+    .power-grid,
+    .mini-grid,
+    .room-grid,
+    .lights-grid,
+    .garden-grid,
+    .forecast-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .power-grid,
+    .mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .forecast-grid { grid-template-columns: 1fr; }
+
+    .tile {
+      padding: 12px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(217, 177, 95, 0.12);
+      min-height: 96px;
+    }
+
+    .tile .big {
+      margin-top: 8px;
+      font-size: 28px;
+      line-height: 0.96;
+      font-weight: 780;
+      color: var(--gold-2);
+    }
+
+    .room-card {
+      padding: 14px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(78, 64, 43, 0.22), rgba(255,255,255,0.02));
+      border: 1px solid rgba(217, 177, 95, 0.14);
+    }
+
+    .room-name {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .room-temp {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--gold-2);
+      line-height: 0.95;
+      margin-bottom: 10px;
+    }
+
+    .room-meta {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .forecast-card {
+      padding: 14px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(78, 64, 43, 0.22), rgba(255,255,255,0.02));
+      border: 1px solid rgba(217, 177, 95, 0.14);
+    }
+
+    .forecast-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .forecast-day {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .forecast-temps {
+      color: var(--gold-2);
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .forecast-condition {
+      margin-top: 6px;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 760;
+      line-height: 1.05;
+    }
+
+    .forecast-detail {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .forecast-meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(217, 177, 95, 0.12);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    .chip.on {
+      color: var(--text);
+      border-color: rgba(217, 177, 95, 0.36);
+      background: linear-gradient(180deg, rgba(217, 177, 95, 0.16), rgba(255,255,255,0.04));
+      box-shadow: 0 0 18px rgba(217, 177, 95, 0.08);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(217, 177, 95, 0.18);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      min-height: 42px;
+      padding: 0 10px;
+    }
+
+    .footer-note {
+      margin-top: 4px;
+      color: rgba(184, 172, 141, 0.8);
+      font-size: 11px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 360px) {
+      .hero-grid,
+      .power-grid,
+      .mini-grid,
+      .controls { grid-template-columns: 1fr; }
+      .main-reading { font-size: 46px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="eyebrow">Temporal Variance Authority / Treehouse branch</div>
+      <h1>Treehouse Dashboard</h1>
+      <div class="ring"></div>
+    </div>
+
+    <div class="stack">
+      <section class="panel hero-card">
+        <div class="section-head">
+          <div>
+            <div class="section-label">Current frame</div>
+            <div id="capturedAt">Snapshot —</div>
+          </div>
+          <div class="value-pill" id="updateState">Updates —</div>
+        </div>
+        <div class="hero-grid">
+          <div>
+            <div class="main-reading" id="outsideTemp">—</div>
+            <div class="muted">Outside temp</div>
+          </div>
+          <div class="support-reading">
+            <div class="kpi">
+              <div class="kpi-label">Home load</div>
+              <div class="kpi-value" id="homeLoad">—</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Battery reserve</div>
+              <div class="kpi-value" id="batterySoc">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="updateNowBtn">Refresh now</button>
+          <button id="updateOnBtn">Updates on</button>
+          <button id="updateOffBtn">Updates off</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-inner">
+          <div class="section-head">
+            <div class="section-label">Weather / envelope</div>
+            <div class="tiny muted" id="weatherSummary">—</div>
+          </div>
+          <div class="mini-grid" id="weatherGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-inner">
+          <div class="section-head">
+            <div class="section-label">3-day outlook / BOM</div>
+            <div class="tiny muted">Kurrajong Hills</div>
+          </div>
+          <div class="forecast-grid" id="forecastGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-inner">
+          <div class="section-head">
+            <div class="section-label">Power spine</div>
+            <div class="tiny muted" id="powerMode">—</div>
+          </div>
+          <div class="power-grid" id="powerTiles"></div>
+          <div id="powerBars" style="margin-top: 12px;"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-inner">
+          <div class="section-head">
+            <div class="section-label">Interior</div>
+            <div class="tiny muted">Lounge + bedroom</div>
+          </div>
+          <div class="room-grid" id="roomGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-inner">
+          <div class="section-head">
+            <div class="section-label">Lighting constellation</div>
+            <div class="tiny muted" id="lightsSummary">—</div>
+          </div>
+          <div class="lights-grid" id="lightsGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-inner">
+          <div class="section-head">
+            <div class="section-label">Garden timeline</div>
+            <div class="tiny muted">Soil + watering</div>
+          </div>
+          <div class="mini-grid" id="soilGrid" style="margin-bottom: 12px;"></div>
+          <div class="garden-grid" id="gardenGrid"></div>
+        </div>
+      </section>
+
+      <div class="footer-note">Variant page only — desktop dashboard untouched.</div>
+    </div>
+  </div>
+
+  <script>
+    const fmt = (value, unit = '') => value === null || value === undefined || Number.isNaN(value) ? '—' : `${value}${unit}`;
+    const signed = (value, unit = '') => value === null || value === undefined || Number.isNaN(value) ? '—' : `${value > 0 ? '+' : ''}${value}${unit}`;
+    const card = (label, value, detail = '') => `
+      <div class="tile">
+        <div class="kpi-label">${label}</div>
+        <div class="big">${value}</div>
+        ${detail ? `<div class="tiny muted" style="margin-top: 8px; line-height: 1.35;">${detail}</div>` : ''}
+      </div>`;
+    const safe = (text) => text == null || text === '' ? '—' : text;
+    const prettyCountdown = (seconds) => {
+      if (seconds == null || seconds < 0) return '—';
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${m}m ${String(s).padStart(2, '0')}s`;
+    };
+
+    let currentData = null;
+    let updateStatus = null;
+
+    async function loadDashboard() {
+      const res = await fetch('./dashboard-snapshot.json', { cache: 'no-store' });
+      currentData = await res.json();
+      render(currentData);
+    }
+
+    async function loadUpdateStatus() {
+      try {
+        const res = await fetch('/api/update-status', { cache: 'no-store' });
+        updateStatus = await res.json();
+      } catch {
+        updateStatus = null;
+      }
+      renderUpdateStatus();
+    }
+
+    function renderUpdateStatus() {
+      const el = document.getElementById('updateState');
+      if (!updateStatus) {
+        el.textContent = 'Update API unavailable';
+        return;
+      }
+      const enabled = !!updateStatus.enabled;
+      const now = updateStatus.now || Date.now() / 1000;
+      const next = updateStatus.next_update;
+      const countdown = enabled && next ? prettyCountdown(Math.max(0, next - now)) : 'paused';
+      el.textContent = enabled ? `Updates on · ${countdown}` : 'Updates off';
+      el.className = `value-pill ${enabled ? 'ok' : ''}`;
+    }
+
+    async function setUpdates(on) {
+      await fetch(on ? '/api/update-on' : '/api/update-off', { cache: 'no-store' });
+      await loadUpdateStatus();
+    }
+
+    async function updateNow() {
+      const btn = document.getElementById('updateNowBtn');
+      btn.disabled = true;
+      btn.textContent = 'Refreshing…';
+      try {
+        const res = await fetch('/api/update-now', { cache: 'no-store' });
+        if (!res.ok) throw new Error('refresh failed');
+        await Promise.all([loadDashboard(), loadUpdateStatus()]);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Refresh now';
+      }
+    }
+
+    function render(data) {
+      const weather = data.weather || {};
+      const forecast = data.forecast || [];
+      const power = data.power || {};
+      const sigen = power.sigen || {};
+      const derived = power.derived || {};
+      const enphase = power.enphase || {};
+      const batteryConfig = power.battery_config || {};
+      const ac = data.ac || [];
+      const lights = data.lights || [];
+      const garden = data.garden || [];
+
+      document.getElementById('capturedAt').textContent = `Snapshot — ${safe(data.captured_at)}`;
+      document.getElementById('outsideTemp').textContent = fmt(weather.outdoor_temp_c, '°C');
+      document.getElementById('homeLoad').textContent = fmt(derived.home_load_kw, ' kW');
+      document.getElementById('batterySoc').textContent = fmt(sigen.battery_soc_pct, '%');
+      document.getElementById('weatherSummary').textContent = `Wind ${fmt(weather.wind_kmh, ' km/h')} · Humidity ${fmt(weather.outdoor_humidity_pct, '%')}`;
+      document.getElementById('powerMode').textContent = `${safe(sigen.grid_mode)} grid · ${safe(sigen.battery_mode)} battery`;
+
+      document.getElementById('weatherGrid').innerHTML = [
+        card('Humidity', fmt(weather.outdoor_humidity_pct, '%')),
+        card('Wind', fmt(weather.wind_kmh, ' km/h')),
+        card('Pressure', fmt(weather.pressure_hpa, ' hPa')),
+        card('Solar', fmt(weather.solar_wm2, ' W/m²')),
+        card('Rain today', fmt(weather.rain_day_mm, ' mm')),
+        card('UV', fmt(weather.uvi))
+      ].join('');
+
+      document.getElementById('forecastGrid').innerHTML = forecast.length ? forecast.slice(0, 3).map(day => `
+        <div class="forecast-card">
+          <div class="forecast-top">
+            <div class="forecast-day">${safe(day.label)}</div>
+            <div class="forecast-temps">${fmt(day.temp_max_c, '°')} / ${fmt(day.temp_min_c, '°')}</div>
+          </div>
+          <div class="forecast-condition">${safe(day.condition)}</div>
+          <div class="forecast-detail">${safe(day.detail)}</div>
+          <div class="forecast-meta">
+            <span class="value-pill">Rain ${fmt(day.rain_chance_pct, '%')}</span>
+            <span class="value-pill">UV ${fmt(day.uv_max)}</span>
+            ${day.fire_danger ? `<span class="value-pill">${safe(day.fire_danger)}</span>` : ''}
+          </div>
+        </div>
+      `).join('') : '<div class="forecast-card"><div class="forecast-day">Forecast</div><div class="forecast-condition">Unavailable</div></div>';
+
+      document.getElementById('powerTiles').innerHTML = [
+        card('Solar now', fmt(enphase.current_power_kw, ' kW'), `Today ${fmt(enphase.energy_today_kwh, ' kWh')}`),
+        card('Grid', signed(sigen.grid_power_kw, ' kW'), safe(sigen.grid_mode)),
+        card('Battery', signed(sigen.battery_power_kw, ' kW'), `${fmt(sigen.battery_remaining_kwh, ' kWh')} remaining`),
+        card('Blackout runway', safe(derived.blackout_runtime_human), `Reserve ${fmt(batteryConfig.reserve_kwh, ' kWh')}`)
+      ].join('');
+
+      const powerBarItems = [
+        ['Home load', derived.home_load_kw, '#d9b15f'],
+        ['Solar', Math.max(0, enphase.current_power_kw || 0), '#79c8c2'],
+        ['Grid import', Math.max(0, sigen.grid_power_kw || 0), '#7dc07b']
+      ];
+      document.getElementById('powerBars').innerHTML = powerBarItems.map(([label, value, color]) => {
+        const width = Math.max(3, Math.min(100, (Number(value) || 0) * 18));
+        return `
+          <div style="margin-bottom: 10px;">
+            <div class="meta-row"><strong>${label}</strong><span>${fmt(value, ' kW')}</span></div>
+            <div class="bar"><span style="width:${width}%; background: linear-gradient(90deg, ${color}, var(--gold-2));"></span></div>
+          </div>`;
+      }).join('');
+
+      document.getElementById('roomGrid').innerHTML = ac.map(room => `
+        <div class="room-card">
+          <div class="room-name">${safe(room.name)}</div>
+          <div class="room-temp">${fmt(room.temp_c, '°C')}</div>
+          <div class="room-meta">
+            <div>Humidity ${fmt(room.humidity_pct, '%')}</div>
+            <div>${room.on ? 'AC on' : 'AC off'} · ${safe(room.mode)} · Target ${fmt(room.target_c, '°C')}</div>
+            <div>CO₂ ${fmt(room.co2, ' ppm')} · IAQ ${fmt(room.iaq)} · TVOC ${fmt(room.tvoc)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      const activeLights = lights.filter(light => light.on).length;
+      document.getElementById('lightsSummary').textContent = `${activeLights} active / ${lights.length} total`;
+      document.getElementById('lightsGrid').innerHTML = lights.map(light => `
+        <div class="chip ${light.on ? 'on' : ''}">${safe(light.name)} · ${light.on ? 'On' : 'Off'}</div>
+      `).join('');
+
+      document.getElementById('soilGrid').innerHTML = [
+        card('Soil CH1', fmt(weather.soil_1_pct, '%')),
+        card('Soil CH2', fmt(weather.soil_2_pct, '%')),
+        card('Indoor temp', fmt(weather.indoor_temp_c, '°C')),
+        card('Indoor humidity', fmt(weather.indoor_humidity_pct, '%'))
+      ].join('');
+
+      document.getElementById('gardenGrid').innerHTML = garden.map(zone => `
+        <div class="list-row">
+          <strong>${safe(zone.name)}</strong>
+          <span class="muted">${safe(zone.time)}</span>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('updateNowBtn').addEventListener('click', updateNow);
+    document.getElementById('updateOnBtn').addEventListener('click', () => setUpdates(true));
+    document.getElementById('updateOffBtn').addEventListener('click', () => setUpdates(false));
+
+    Promise.all([loadDashboard(), loadUpdateStatus()]);
+    setInterval(loadUpdateStatus, 10000);
+    setInterval(loadDashboard, 60000);
+  </script>
+</body>
+</html>

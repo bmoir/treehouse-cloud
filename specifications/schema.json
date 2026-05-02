@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://treehouse.local/dashboard/schema.json",
+  "title": "Treehouse Dashboard Snapshot",
+  "description": "Schema for dashboard-snapshot.json, with additional reusable API response definitions in $defs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "captured_at",
+    "power",
+    "weather",
+    "forecast",
+    "ac",
+    "lights",
+    "garden"
+  ],
+  "properties": {
+    "captured_at": { "type": "string" },
+    "power": { "$ref": "#/$defs/powerSnapshot" },
+    "weather": { "$ref": "#/$defs/weather" },
+    "forecast": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/forecastDay" }
+    },
+    "ac": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/acRoom" }
+    },
+    "lights": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/light" }
+    },
+    "garden": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gardenZone" }
+    }
+  },
+  "$defs": {
+    "nullableString": {
+      "type": ["string", "null"]
+    },
+    "nullableNumber": {
+      "type": ["number", "null"]
+    },
+    "nullableInteger": {
+      "type": ["integer", "null"]
+    },
+    "nullableBoolean": {
+      "type": ["boolean", "null"]
+    },
+    "powerSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "captured_at",
+        "battery_config",
+        "power_config",
+        "enphase",
+        "sigen",
+        "derived"
+      ],
+      "properties": {
+        "captured_at": { "type": "string" },
+        "battery_config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["total_capacity_kwh", "reserve_pct", "reserve_kwh"],
+          "properties": {
+            "total_capacity_kwh": { "type": "number" },
+            "reserve_pct": { "type": "number" },
+            "reserve_kwh": { "type": "number" }
+          }
+        },
+        "power_config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["deadband_kw"],
+          "properties": {
+            "deadband_kw": { "type": "number" }
+          }
+        },
+        "enphase": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "system_id",
+            "current_power_kw",
+            "energy_today_kwh",
+            "energy_lifetime_kwh",
+            "status",
+            "source",
+            "last_report_at"
+          ],
+          "properties": {
+            "system_id": { "type": "string" },
+            "current_power_kw": { "$ref": "#/$defs/nullableNumber" },
+            "energy_today_kwh": { "$ref": "#/$defs/nullableNumber" },
+            "energy_lifetime_kwh": { "$ref": "#/$defs/nullableNumber" },
+            "status": { "$ref": "#/$defs/nullableString" },
+            "source": { "$ref": "#/$defs/nullableString" },
+            "last_report_at": { "$ref": "#/$defs/nullableInteger" }
+          }
+        },
+        "sigen": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "battery_soc_pct",
+            "battery_power_kw",
+            "battery_mode",
+            "battery_remaining_kwh",
+            "battery_usable_remaining_kwh",
+            "time_to_reserve_hours",
+            "time_to_reserve_human",
+            "time_to_full_hours",
+            "time_to_full_human",
+            "grid_power_kw",
+            "grid_mode"
+          ],
+          "properties": {
+            "battery_soc_pct": { "$ref": "#/$defs/nullableNumber" },
+            "battery_power_kw": { "$ref": "#/$defs/nullableNumber" },
+            "battery_mode": {
+              "type": "string",
+              "enum": ["charging", "discharging", "idle", "unknown"]
+            },
+            "battery_remaining_kwh": { "$ref": "#/$defs/nullableNumber" },
+            "battery_usable_remaining_kwh": { "$ref": "#/$defs/nullableNumber" },
+            "time_to_reserve_hours": { "$ref": "#/$defs/nullableNumber" },
+            "time_to_reserve_human": { "type": "string" },
+            "time_to_full_hours": { "$ref": "#/$defs/nullableNumber" },
+            "time_to_full_human": { "type": "string" },
+            "grid_power_kw": { "$ref": "#/$defs/nullableNumber" },
+            "grid_mode": {
+              "type": "string",
+              "enum": ["import", "export", "neutral", "unknown"]
+            }
+          }
+        },
+        "derived": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["home_load_kw", "blackout_runtime_hours", "blackout_runtime_human"],
+          "properties": {
+            "home_load_kw": { "$ref": "#/$defs/nullableNumber" },
+            "blackout_runtime_hours": { "$ref": "#/$defs/nullableNumber" },
+            "blackout_runtime_human": { "type": "string" }
+          }
+        }
+      }
+    },
+    "weather": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outdoor_temp_c",
+        "outdoor_humidity_pct",
+        "indoor_temp_c",
+        "indoor_humidity_pct",
+        "wind_kmh",
+        "gust_kmh",
+        "rain_day_mm",
+        "solar_wm2",
+        "uvi",
+        "pressure_hpa",
+        "soil_1_pct",
+        "soil_2_pct"
+      ],
+      "properties": {
+        "outdoor_temp_c": { "$ref": "#/$defs/nullableNumber" },
+        "outdoor_humidity_pct": { "$ref": "#/$defs/nullableNumber" },
+        "indoor_temp_c": { "$ref": "#/$defs/nullableNumber" },
+        "indoor_humidity_pct": { "$ref": "#/$defs/nullableNumber" },
+        "wind_kmh": { "$ref": "#/$defs/nullableNumber" },
+        "gust_kmh": { "$ref": "#/$defs/nullableNumber" },
+        "rain_day_mm": { "$ref": "#/$defs/nullableNumber" },
+        "solar_wm2": { "$ref": "#/$defs/nullableNumber" },
+        "uvi": { "$ref": "#/$defs/nullableNumber" },
+        "pressure_hpa": { "$ref": "#/$defs/nullableNumber" },
+        "soil_1_pct": { "$ref": "#/$defs/nullableNumber" },
+        "soil_2_pct": { "$ref": "#/$defs/nullableNumber" }
+      }
+    },
+    "forecastDay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "date",
+        "label",
+        "condition",
+        "detail",
+        "temp_max_c",
+        "temp_min_c",
+        "rain_chance_pct",
+        "rain_min_mm",
+        "rain_max_mm",
+        "uv_max",
+        "uv_category",
+        "fire_danger"
+      ],
+      "properties": {
+        "date": { "$ref": "#/$defs/nullableString" },
+        "label": { "$ref": "#/$defs/nullableString" },
+        "condition": { "$ref": "#/$defs/nullableString" },
+        "detail": { "$ref": "#/$defs/nullableString" },
+        "temp_max_c": { "$ref": "#/$defs/nullableNumber" },
+        "temp_min_c": { "$ref": "#/$defs/nullableNumber" },
+        "rain_chance_pct": { "$ref": "#/$defs/nullableNumber" },
+        "rain_min_mm": { "$ref": "#/$defs/nullableNumber" },
+        "rain_max_mm": { "$ref": "#/$defs/nullableNumber" },
+        "uv_max": { "$ref": "#/$defs/nullableNumber" },
+        "uv_category": { "$ref": "#/$defs/nullableString" },
+        "fire_danger": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "acRoom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "on",
+        "mode",
+        "target_c",
+        "temp_c",
+        "humidity_pct",
+        "co2",
+        "iaq",
+        "tvoc"
+      ],
+      "properties": {
+        "name": { "$ref": "#/$defs/nullableString" },
+        "on": { "$ref": "#/$defs/nullableBoolean" },
+        "mode": { "$ref": "#/$defs/nullableString" },
+        "target_c": { "$ref": "#/$defs/nullableNumber" },
+        "temp_c": { "$ref": "#/$defs/nullableNumber" },
+        "humidity_pct": { "$ref": "#/$defs/nullableNumber" },
+        "co2": { "$ref": "#/$defs/nullableNumber" },
+        "iaq": { "$ref": "#/$defs/nullableNumber" },
+        "tvoc": { "$ref": "#/$defs/nullableNumber" }
+      }
+    },
+    "light": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "on", "bri", "reachable"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "$ref": "#/$defs/nullableString" },
+        "on": { "$ref": "#/$defs/nullableBoolean" },
+        "bri": { "$ref": "#/$defs/nullableInteger" },
+        "reachable": { "$ref": "#/$defs/nullableBoolean" }
+      }
+    },
+    "gardenZone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "status", "time"],
+      "properties": {
+        "name": { "$ref": "#/$defs/nullableString" },
+        "status": { "$ref": "#/$defs/nullableString" },
+        "time": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "apiUpdateStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "interval_seconds",
+        "last_update",
+        "next_update",
+        "last_status",
+        "last_error",
+        "now"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "interval_seconds": { "type": "integer" },
+        "last_update": { "$ref": "#/$defs/nullableString" },
+        "next_update": { "$ref": "#/$defs/nullableNumber" },
+        "last_status": { "$ref": "#/$defs/nullableString" },
+        "last_error": { "$ref": "#/$defs/nullableString" },
+        "now": { "type": "number" }
+      }
+    },
+    "apiUpdateToggleResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "enabled"],
+      "properties": {
+        "ok": { "type": "boolean" },
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "apiUpdateNowResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok"],
+      "properties": {
+        "ok": { "type": "boolean" }
+      }
+    }
+  }
+}

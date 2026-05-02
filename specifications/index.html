@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Treehouse Temporal Dashboard</title>
+  <style>
+    :root {
+      --bg-top: #2a3328; --bg-mid: #4c4a39; --bg-bottom: #241d16;
+      --line: rgba(231,177,86,.30); --amber: #f0b55e; --orange: #d57c2f;
+      --sage: #a9b37c; --cream: #efe1bf; --text: #f4e8ca; --muted: #cdbb96;
+      --shadow: 0 12px 30px rgba(0,0,0,.30);
+    }
+    * { box-sizing: border-box; min-width: 0; }
+    html, body { height: 100%; }
+    body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:var(--text); background:radial-gradient(circle at 15% 12%, rgba(240,181,94,.12), transparent 22%),radial-gradient(circle at 80% 14%, rgba(169,179,124,.12), transparent 28%),linear-gradient(to bottom, var(--bg-top) 0%, #394335 22%, var(--bg-mid) 52%, #31291f 76%, var(--bg-bottom) 100%); overflow:hidden; }
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; background:linear-gradient(rgba(255,255,255,.02), rgba(255,255,255,0) 20%),repeating-linear-gradient(to bottom, rgba(255,255,255,.018), rgba(255,255,255,.018) 1px, transparent 1px, transparent 4px); mix-blend-mode:soft-light; opacity:.35; }
+    .wrap { width:min(2500px, calc(100vw - 32px)); height:100vh; margin:0 auto; padding:14px 16px 16px; display:grid; grid-template-rows:auto 1fr; gap:12px; }
+    .header { display:flex; justify-content:space-between; align-items:end; gap:20px; padding:4px 6px 12px; border-bottom:1px solid var(--line); }
+    .eyebrow { font-size:11px; letter-spacing:.34em; text-transform:uppercase; color:var(--sage); margin-bottom:6px; }
+    h1 { margin:0; font-family:Georgia, "Times New Roman", serif; font-weight:600; font-size:clamp(32px, 3vw, 58px); letter-spacing:.05em; text-transform:uppercase; color:var(--amber); line-height:.96; text-shadow:0 0 20px rgba(240,181,94,.14); }
+    .sub { margin-top:7px; color:var(--muted); font-size:clamp(12px, .82vw, 15px); max-width:820px; }
+    .stamp { text-align:right; color:var(--muted); font-size:12px; letter-spacing:.12em; text-transform:uppercase; flex:0 0 auto; }
+    .update-bar { margin-top:10px; display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+    .update-state { color:var(--cream); }
+    .controls { display:flex; gap:8px; }
+    button { appearance:none; border:1px solid rgba(231,177,86,.26); background:rgba(255,255,255,.04); color:var(--cream); padding:8px 12px; border-radius:999px; font-size:11px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
+    button:hover { border-color:rgba(240,181,94,.4); }
+    .hero { display:grid; grid-template-columns:.96fr 1.22fr .96fr; gap:14px; min-height:0; height:100%; }
+    .col { display:grid; gap:14px; min-height:0; align-content:stretch; grid-auto-rows:minmax(0,1fr); }
+    .panel { background:linear-gradient(180deg, rgba(72,56,40,.66), rgba(28,23,17,.80)); border:1px solid var(--line); box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.04); border-radius:22px; padding:14px 14px 12px; backdrop-filter:blur(8px); position:relative; overflow:hidden; min-height:0; }
+    .title { font-size:11px; text-transform:uppercase; letter-spacing:.24em; color:var(--sage); margin-bottom:10px; }
+    .metric-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+    .metric { padding:12px 12px 10px; background:rgba(244,232,202,.03); border:1px solid rgba(231,177,86,.12); border-radius:16px; min-height:88px; }
+    .metric .label,.terrain-card .label { color:var(--muted); font-size:10px; letter-spacing:.16em; text-transform:uppercase; margin-bottom:6px; }
+    .metric .value { font-size:clamp(18px,1.38vw,28px); font-weight:760; color:var(--cream); line-height:1.02; overflow-wrap:anywhere; }
+    .metric .small { font-size:11px; color:var(--sage); margin-top:4px; }
+    .power-stack { display:grid; gap:10px; }
+    .row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:start; padding:7px 0; border-bottom:1px dashed rgba(231,177,86,.12); color:var(--muted); font-size:12px; }
+    .row:last-child { border-bottom:0; }
+    .row strong { color:var(--cream); font-weight:600; overflow-wrap:anywhere; }
+    .row span { text-align:right; }
+    .bar { height:10px; border-radius:999px; background:rgba(255,255,255,.06); overflow:hidden; border:1px solid rgba(231,177,86,.12); }
+    .bar > span { display:block; height:100%; border-radius:inherit; box-shadow:0 0 18px rgba(240,181,94,.18); }
+    .terrain { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:9px; margin-top:6px; }
+    .terrain-card { padding:10px; border-radius:16px; background:rgba(29,34,27,.34); border:1px solid rgba(169,179,124,.18); min-height:82px; }
+    .terrain-card .big { font-size:clamp(18px,1.3vw,24px); color:var(--sage); font-weight:760; margin-top:6px; overflow-wrap:anywhere; line-height:1.05; }
+    .list { display:grid; gap:0; }
+    .house-panel { display:grid; grid-template-rows:auto 1fr auto; min-height:0; }
+    .house-stage { position:relative; border-radius:24px; border:1px solid rgba(231,177,86,.18); background:radial-gradient(circle at 50% 18%, rgba(240,181,94,.11), transparent 18%),linear-gradient(to bottom, rgba(77,96,79,.34), rgba(58,47,35,.35) 50%, rgba(37,28,21,.50)); overflow:hidden; min-height:0; padding-bottom:182px; }
+    .sun-ring { position:absolute; top:6%; right:8%; width:150px; height:150px; border-radius:50%; border:1px solid rgba(240,181,94,.42); box-shadow:0 0 46px rgba(240,181,94,.16), inset 0 0 32px rgba(240,181,94,.08); }
+    .sun-ring::before,.sun-ring::after { content:""; position:absolute; inset:12px; border:1px dashed rgba(240,181,94,.24); border-radius:50%; }
+    .sun-ring::after { inset:30px; }
+    .horizon-line,.ground-line { position:absolute; left:0; right:0; border-top:1px dashed rgba(169,179,124,.2); }
+    .horizon-line { top:31%; } .ground-line { top:64%; }
+    .house { position:absolute; left:50%; top:39%; transform:translate(-50%, -50%); width:min(760px, 90%); display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; padding:18px; border-radius:26px; background:linear-gradient(180deg, rgba(56,44,32,.88), rgba(24,19,14,.94)); border:1px solid rgba(231,177,86,.25); box-shadow:0 24px 50px rgba(0,0,0,.45), 0 0 36px rgba(240,181,94,.06); }
+    .house::before { content:""; position:absolute; top:-62px; left:8%; right:8%; height:82px; clip-path:polygon(50% 0, 100% 100%, 0 100%); background:linear-gradient(180deg, rgba(103,78,53,.85), rgba(40,31,22,.9)); border:1px solid rgba(231,177,86,.2); }
+    .room { border-radius:18px; padding:12px; background:linear-gradient(180deg, rgba(97,76,52,.28), rgba(31,25,20,.42)); border:1px solid rgba(231,177,86,.16); display:flex; flex-direction:column; justify-content:space-between; min-height:132px; overflow:hidden; }
+    .room h3 { margin:0 0 5px; font-size:12px; letter-spacing:.12em; color:var(--cream); text-transform:uppercase; line-height:1.15; overflow-wrap:anywhere; }
+    .room .temp { font-size:clamp(26px,1.7vw,36px); font-weight:800; color:var(--amber); line-height:.95; overflow-wrap:anywhere; }
+    .room .meta { display:grid; gap:3px; font-size:11px; color:var(--muted); line-height:1.18; }
+    .room .meta div { overflow-wrap:anywhere; word-break:break-word; }
+    .forecast-ribbon { position:absolute; left:16px; right:16px; bottom:16px; padding:12px 14px 14px; border-radius:20px; background:linear-gradient(180deg, rgba(33,43,35,.50), rgba(24,19,14,.70)); border:1px solid rgba(169,179,124,.18); box-shadow:inset 0 1px 0 rgba(255,255,255,.03); backdrop-filter:blur(6px); }
+    .forecast-title { color:var(--sage); font-size:10px; letter-spacing:.22em; text-transform:uppercase; margin-bottom:10px; }
+    .forecast-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; }
+    .forecast-card { padding:9px 10px; border-radius:16px; background:rgba(255,255,255,.03); border:1px solid rgba(231,177,86,.12); min-height:82px; }
+    .forecast-card .day { color:var(--cream); font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .forecast-card .condition { margin-top:4px; color:var(--amber); font-size:15px; font-weight:700; line-height:1.06; }
+    .forecast-card .detail { margin-top:3px; color:var(--muted); font-size:10px; line-height:1.18; min-height:22px; }
+    .forecast-card .temps { margin-top:6px; color:var(--cream); font-size:12px; }
+    .forecast-card .meta { margin-top:3px; color:var(--muted); font-size:10px; letter-spacing:.04em; }
+    .lights-bar { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; }
+    .chip { padding:8px 9px; border-radius:999px; border:1px solid rgba(231,177,86,.15); background:rgba(255,255,255,.03); color:var(--muted); font-size:10px; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .chip.on { color:var(--cream); border-color:rgba(240,181,94,.35); box-shadow:0 0 16px rgba(240,181,94,.08); }
+    .footer-note { margin-top:8px; color:var(--muted); font-size:10px; letter-spacing:.11em; text-transform:uppercase; text-align:right; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <div class="eyebrow">Treehouse</div>
+        <h1>Temporal Habitat Oversight</h1>
+        <div class="sub">Single-shot home telemetry tableau — sky to ground, house centred, no controls unless update mode is armed.</div>
+        <div class="update-bar">
+          <div class="update-state" id="updateState">Updates: off</div>
+          <div class="controls">
+            <button id="updateNowBtn">Update Now</button>
+            <button id="updateOnBtn">Updates On</button>
+            <button id="updateOffBtn">Updates Off</button>
+          </div>
+        </div>
+      </div>
+      <div class="stamp">
+        <div>2560 × 1664 tuned / single-page</div>
+        <div id="capturedAt">Snapshot —</div>
+        <div id="nextUpdate">Next update —</div>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="col">
+        <div class="panel"><div class="title">Sky / Weather Envelope</div><div class="metric-grid" id="weatherMetrics"></div></div>
+        <div class="panel"><div class="title">Solar & Grid Exchange</div><div class="power-stack" id="powerStack"></div></div>
+        <div class="panel"><div class="title">Garden / Soil / Watering</div><div class="terrain" id="soilCards"></div><div class="list" id="gardenList" style="margin-top:10px"></div></div>
+      </div>
+      <div class="col">
+        <div class="panel house-panel"><div class="title">House Core</div><div class="house-stage"><div class="sun-ring"></div><div class="horizon-line"></div><div class="ground-line"></div><div class="house" id="houseRooms"></div><div class="forecast-ribbon"><div class="forecast-title">3-Day Outlook / BOM</div><div class="forecast-grid" id="forecastStrip"></div></div></div><div class="footer-note">Retro-modern / TVA-inspired / local snapshot only</div></div>
+      </div>
+      <div class="col">
+        <div class="panel"><div class="title">Battery Reserve Logic</div><div class="metric-grid" id="batteryMetrics"></div></div>
+        <div class="panel"><div class="title">Lighting Constellation</div><div class="lights-bar" id="lightsBar"></div></div>
+        <div class="panel"><div class="title">Interior Atmosphere</div><div class="list" id="acList"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fmt = (v, unit='') => v === null || v === undefined || Number.isNaN(v) ? '—' : `${v}${unit}`;
+    const metric = (label, value, small='') => `<div class="metric"><div class="label">${label}</div><div class="value">${value}</div>${small ? `<div class="small">${small}</div>` : ''}</div>`;
+    const prettyCountdown = (seconds) => {
+      if (seconds == null || seconds < 0) return '—';
+      const m = Math.floor(seconds / 60); const s = Math.floor(seconds % 60);
+      return `${m}m ${String(s).padStart(2,'0')}s`;
+    };
+
+    let currentData = null;
+    let updateStatus = null;
+
+    async function loadDashboard() {
+      const res = await fetch('./dashboard-snapshot.json', { cache: 'no-store' });
+      currentData = await res.json();
+      render(currentData);
+    }
+
+    async function loadUpdateStatus() {
+      const res = await fetch('/api/update-status', { cache: 'no-store' });
+      updateStatus = await res.json();
+      renderUpdateStatus();
+    }
+
+    function renderUpdateStatus() {
+      if (!updateStatus) return;
+      const enabled = updateStatus.enabled;
+      const now = updateStatus.now || Date.now()/1000;
+      const next = updateStatus.next_update;
+      const countdown = enabled && next ? prettyCountdown(Math.max(0, next - now)) : 'paused';
+      document.getElementById('updateState').textContent = `Updates: ${enabled ? 'on' : 'off'} · status ${updateStatus.last_status || 'idle'}`;
+      document.getElementById('nextUpdate').textContent = enabled ? `Next update ${countdown}` : 'Next update — paused';
+    }
+
+    async function setUpdates(on) {
+      await fetch(on ? '/api/update-on' : '/api/update-off', { cache: 'no-store' });
+      await loadUpdateStatus();
+    }
+
+    async function updateNow() {
+      const btn = document.getElementById('updateNowBtn');
+      btn.disabled = true;
+      btn.textContent = 'Updating…';
+      try {
+        const res = await fetch('/api/update-now', { cache: 'no-store' });
+        if (!res.ok) throw new Error('update failed');
+        window.location.reload();
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = 'Update Now';
+        await loadUpdateStatus();
+      }
+    }
+
+    function render(data) {
+      document.getElementById('capturedAt').textContent = `Snapshot — ${data.captured_at}`;
+      const w = data.weather || {};
+      const forecast = (data.forecast || []).slice(0, 3);
+      document.getElementById('weatherMetrics').innerHTML = [metric('Outside Temp', fmt(w.outdoor_temp_c, '°C')),metric('Wind', fmt(w.wind_kmh, ' km/h')),metric('Humidity', fmt(w.outdoor_humidity_pct, '%')),metric('Rain Today', fmt(w.rain_day_mm, ' mm')),metric('Solar', fmt(w.solar_wm2, ' W/m²')),metric('Pressure', fmt(w.pressure_hpa, ' hPa'))].join('');
+      const p = data.power;
+      const powerItems = [['Solar Generation', p.enphase.current_power_kw, '#f0b55e'],['Home Load', p.derived.home_load_kw, '#e58e44'],['Grid Import', p.sigen.grid_power_kw, '#a9b37c']];
+      document.getElementById('powerStack').innerHTML = powerItems.map(([label, value, color]) => `<div><div class="row"><strong>${label}</strong><span>${fmt(value, ' kW')}</span></div><div class="bar"><span style="width:${Math.max(2, Math.min(100, (value || 0) * 9))}%; background: linear-gradient(90deg, ${color}, var(--amber));"></span></div></div>`).join('');
+      document.getElementById('soilCards').innerHTML = [{label:'Soil CH1', value: fmt(w.soil_1_pct, '%')},{label:'Soil CH2', value: fmt(w.soil_2_pct, '%')},{label:'Indoor Temp', value: fmt(w.indoor_temp_c, '°C')},{label:'UV Index', value: fmt(w.uvi)}].map(item => `<div class="terrain-card"><div class="label">${item.label}</div><div class="big">${item.value}</div></div>`).join('');
+      document.getElementById('gardenList').innerHTML = (data.garden || []).slice(0,8).map(z => `<div class="row"><strong>${z.name}</strong><span>${z.time || '—'}</span></div>`).join('');
+      document.getElementById('forecastStrip').innerHTML = forecast.length ? forecast.map(day => `<div class="forecast-card"><div class="day">${day.label || '—'}</div><div class="condition">${day.condition || '—'}</div><div class="detail">${day.detail || '—'}</div><div class="temps">${fmt(day.temp_max_c, '°')} / ${fmt(day.temp_min_c, '°')}</div><div class="meta">Rain ${fmt(day.rain_chance_pct, '%')} · UV ${fmt(day.uv_max)}${day.fire_danger ? ` · ${day.fire_danger}` : ''}</div></div>`).join('') : `<div class="forecast-card"><div class="day">Forecast</div><div class="condition">Unavailable</div><div class="meta">Next update should refill this.</div></div>`;
+      const roomCards = (data.ac || []).map(room => `<div class="room"><div><h3>${room.name}</h3><div class="temp">${fmt(room.temp_c, '°')}</div></div><div class="meta"><div>Humidity ${fmt(room.humidity_pct, '%')}</div><div>AC ${room.on ? 'ON' : 'OFF'} / ${room.mode || '—'} / ${fmt(room.target_c, '° target')}</div><div>CO₂ ${fmt(room.co2, ' ppm')} · IAQ ${fmt(room.iaq)} · TVOC ${fmt(room.tvoc)}</div></div></div>`).join('');
+      document.getElementById('houseRooms').innerHTML = roomCards + `<div class="room"><div><h3>Power Spine</h3><div class="temp">${fmt(p.enphase.current_power_kw, 'kW')}</div></div><div class="meta"><div>Battery ${fmt(p.sigen.battery_power_kw, ' kW')} / ${p.sigen.battery_mode}</div><div>Grid ${fmt(p.sigen.grid_power_kw, ' kW')} / ${p.sigen.grid_mode}</div><div>Home ${fmt(p.derived.home_load_kw, ' kW')}</div></div></div>`;
+      document.getElementById('batteryMetrics').innerHTML = [metric('SOC', fmt(p.sigen.battery_soc_pct, '%')),metric('Remaining', fmt(p.sigen.battery_remaining_kwh, ' kWh')),metric('Usable', fmt(p.sigen.battery_usable_remaining_kwh, ' kWh')),metric('Reserve', fmt(p.battery_config.reserve_kwh, ' kWh')),metric('To 10%', p.sigen.time_to_reserve_human || '—'),metric('Blackout', p.derived.blackout_runtime_human || '—')].join('');
+      document.getElementById('lightsBar').innerHTML = (data.lights || []).map(light => `<div class="chip ${light.on ? 'on' : ''}">${light.name} · ${light.on ? 'On' : 'Off'}</div>`).join('');
+      document.getElementById('acList').innerHTML = (data.ac || []).map(room => `<div class="row"><strong>${room.name}</strong><span>${fmt(room.temp_c, '°C')} · ${fmt(room.humidity_pct, '%')} · ${room.on ? 'AC on' : 'AC off'}</span></div>`).join('');
+    }
+
+    document.getElementById('updateNowBtn').addEventListener('click', updateNow);
+    document.getElementById('updateOnBtn').addEventListener('click', () => setUpdates(true));
+    document.getElementById('updateOffBtn').addEventListener('click', () => setUpdates(false));
+
+    loadDashboard();
+    loadUpdateStatus();
+    setInterval(loadUpdateStatus, 1000);
+    setInterval(async () => {
+      const before = currentData?.captured_at;
+      await loadDashboard();
+      if (currentData?.captured_at !== before) await loadUpdateStatus();
+    }, 10000);
+  </script>
+</body>
+</html>
