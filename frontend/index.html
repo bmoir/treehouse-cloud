@@ -51,7 +51,7 @@
     .terrain-card .big { font-size:clamp(18px,1.3vw,24px); color:var(--sage); font-weight:760; margin-top:6px; overflow-wrap:anywhere; line-height:1.05; }
     .list { display:grid; gap:0; }
     .house-panel { display:grid; grid-template-rows:auto 1fr auto; min-height:0; }
-    .house-stage { position:relative; border-radius:24px; border:1px solid rgba(231,177,86,.18); background:radial-gradient(circle at 50% 18%, rgba(240,181,94,.11), transparent 18%),linear-gradient(to bottom, rgba(77,96,79,.34), rgba(58,47,35,.35) 50%, rgba(37,28,21,.50)); overflow:hidden; min-height:0; padding-bottom:182px; }
+    .house-stage { position:relative; border-radius:24px; border:1px solid rgba(231,177,86,.18); background:radial-gradient(circle at 50% 18%, rgba(240,181,94,.11), transparent 18%),linear-gradient(to bottom, rgba(77,96,79,.34), rgba(58,47,35,.35) 50%, rgba(37,28,21,.50)); overflow:hidden; min-height:0; padding-bottom:138px; }
     .sun-ring { position:absolute; top:6%; right:8%; width:150px; height:150px; border-radius:50%; border:1px solid rgba(240,181,94,.42); box-shadow:0 0 46px rgba(240,181,94,.16), inset 0 0 32px rgba(240,181,94,.08); }
     .sun-ring::before,.sun-ring::after { content:""; position:absolute; inset:12px; border:1px dashed rgba(240,181,94,.24); border-radius:50%; }
     .sun-ring::after { inset:30px; }
@@ -64,10 +64,10 @@
     .room .temp { font-size:clamp(26px,1.7vw,36px); font-weight:800; color:var(--amber); line-height:.95; overflow-wrap:anywhere; }
     .room .meta { display:grid; gap:3px; font-size:11px; color:var(--muted); line-height:1.18; }
     .room .meta div { overflow-wrap:anywhere; word-break:break-word; }
-    .forecast-ribbon { position:absolute; left:16px; right:16px; bottom:16px; padding:12px 14px 14px; border-radius:20px; background:linear-gradient(180deg, rgba(33,43,35,.50), rgba(24,19,14,.70)); border:1px solid rgba(169,179,124,.18); box-shadow:inset 0 1px 0 rgba(255,255,255,.03); backdrop-filter:blur(6px); }
-    .forecast-title { color:var(--sage); font-size:10px; letter-spacing:.22em; text-transform:uppercase; margin-bottom:10px; }
+    .forecast-ribbon { position:absolute; left:16px; right:16px; bottom:16px; padding:8px 12px 10px; border-radius:20px; background:linear-gradient(180deg, rgba(33,43,35,.50), rgba(24,19,14,.70)); border:1px solid rgba(169,179,124,.18); box-shadow:inset 0 1px 0 rgba(255,255,255,.03); backdrop-filter:blur(6px); }
+    .forecast-title { color:var(--sage); font-size:10px; letter-spacing:.22em; text-transform:uppercase; margin-bottom:7px; }
     .forecast-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; }
-    .forecast-card { padding:9px 10px; border-radius:16px; background:rgba(255,255,255,.03); border:1px solid rgba(231,177,86,.12); min-height:82px; }
+    .forecast-card { padding:7px 9px 8px; border-radius:16px; background:rgba(255,255,255,.03); border:1px solid rgba(231,177,86,.12); min-height:0; }
     .forecast-card .day { color:var(--cream); font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
     .forecast-card .condition { margin-top:4px; color:var(--amber); font-size:15px; font-weight:700; line-height:1.06; }
     .forecast-card .detail { margin-top:3px; color:var(--muted); font-size:10px; line-height:1.18; min-height:22px; }
@@ -78,13 +78,10 @@
     .chip.on { color:var(--cream); border-color:rgba(240,181,94,.35); box-shadow:0 0 16px rgba(240,181,94,.08); }
     .footer-note { margin-top:8px; color:var(--muted); font-size:10px; letter-spacing:.11em; text-transform:uppercase; text-align:right; }
     .stale { color:#f28c8c !important; }
-    .col-mid { grid-template-rows: 1fr 318px; }
-    .tank-panel { display:flex; flex-direction:column; gap:8px; }
+    .col-mid { grid-template-rows: 1fr 236px; }
+    .tank-panel { display:flex; flex-direction:column; }
     .tank-stage { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; }
-    .tank-stage svg { width:100%; height:100%; max-height:198px; }
-    .tank-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-    .tank-metrics .metric { min-height:58px; }
-    .tank-metrics .metric .value { font-size:clamp(13px,1.05vw,20px); }
+    .tank-stage svg { height:100%; width:auto; max-height:204px; }
     .wave1 { animation:wave-scroll 4s linear infinite; }
     .wave2 { animation:wave-scroll 7s linear infinite; animation-delay:-3.5s; }
     @keyframes wave-scroll { to { transform:translateX(-80px); } }
@@ -122,43 +119,70 @@
         <div class="panel tank-panel">
           <div class="title">Water Tank Reserve</div>
           <div class="tank-stage">
-            <svg id="tankSvg" viewBox="0 0 220 210" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <svg id="tankSvg" viewBox="0 0 268 212" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="#4ec4d8"/>
                   <stop offset="100%" stop-color="#1a5f78"/>
                 </linearGradient>
-                <clipPath id="tc"><rect x="30" y="20" width="160" height="176"/></clipPath>
+                <clipPath id="tc"><rect x="58" y="20" width="152" height="176"/></clipPath>
               </defs>
-              <rect x="10" y="16" width="20" height="182" rx="3" fill="#2e2822" stroke="#4e3e2e" stroke-width="1.5"/>
-              <rect x="190" y="16" width="20" height="182" rx="3" fill="#2e2822" stroke="#4e3e2e" stroke-width="1.5"/>
-              <rect x="10" y="194" width="200" height="16" rx="3" fill="#2e2822" stroke="#4e3e2e" stroke-width="1.5"/>
-              <rect x="30" y="20" width="160" height="176" fill="#0c1014"/>
-              <line x1="190" y1="20"  x2="196" y2="20"  stroke="#4e3e2e" stroke-width="1"/>
-              <line x1="190" y1="64"  x2="196" y2="64"  stroke="#4e3e2e" stroke-width="1"/>
-              <line x1="190" y1="108" x2="196" y2="108" stroke="#4e3e2e" stroke-width="1"/>
-              <line x1="190" y1="152" x2="196" y2="152" stroke="#4e3e2e" stroke-width="1"/>
-              <line x1="190" y1="196" x2="196" y2="196" stroke="#4e3e2e" stroke-width="1"/>
-              <text x="199" y="23"  fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">100%</text>
-              <text x="199" y="67"  fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">75%</text>
-              <text x="199" y="111" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">50%</text>
-              <text x="199" y="155" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">25%</text>
-              <text x="199" y="199" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">0%</text>
-              <rect id="tw" x="30" y="196" width="160" height="0" fill="url(#wg)" clip-path="url(#tc)"/>
+              <!-- Depth-to-water axis label (rotated, left margin) -->
+              <text x="7" y="108" text-anchor="middle" transform="rotate(-90,7,108)" fill="#4e3e2e" font-size="6.5" letter-spacing="1.2" font-family="Inter,sans-serif">DEPTH TO WATER</text>
+              <!-- Left depth scale ticks + labels (0 = sensor at top, 2.5m = tank floor) -->
+              <line x1="50" y1="20"  x2="58" y2="20"  stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="50" y1="55"  x2="58" y2="55"  stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="50" y1="90"  x2="58" y2="90"  stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="50" y1="126" x2="58" y2="126" stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="50" y1="161" x2="58" y2="161" stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="50" y1="196" x2="58" y2="196" stroke="#4e3e2e" stroke-width="1"/>
+              <text x="48" y="23"  text-anchor="end" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">0m</text>
+              <text x="48" y="58"  text-anchor="end" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">0.5m</text>
+              <text x="48" y="93"  text-anchor="end" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">1m</text>
+              <text x="48" y="129" text-anchor="end" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">1.5m</text>
+              <text x="48" y="164" text-anchor="end" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">2m</text>
+              <text x="48" y="199" text-anchor="end" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">2.5m</text>
+              <!-- Concrete walls + floor -->
+              <rect x="42" y="16" width="16" height="184" rx="2" fill="#2e2822" stroke="#4e3e2e" stroke-width="1.5"/>
+              <rect x="210" y="16" width="16" height="184" rx="2" fill="#2e2822" stroke="#4e3e2e" stroke-width="1.5"/>
+              <rect x="42" y="196" width="184" height="14" rx="2" fill="#2e2822" stroke="#4e3e2e" stroke-width="1.5"/>
+              <!-- Tank interior background -->
+              <rect x="58" y="20" width="152" height="176" fill="#0c1014"/>
+              <!-- Right percent scale ticks + labels -->
+              <line x1="210" y1="20"  x2="218" y2="20"  stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="210" y1="64"  x2="218" y2="64"  stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="210" y1="108" x2="218" y2="108" stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="210" y1="152" x2="218" y2="152" stroke="#4e3e2e" stroke-width="1"/>
+              <line x1="210" y1="196" x2="218" y2="196" stroke="#4e3e2e" stroke-width="1"/>
+              <text x="220" y="18"  fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">100%</text>
+              <text x="220" y="27"  fill="#a9b37c" font-size="6.5" font-family="Inter,sans-serif">110kL</text>
+              <text x="220" y="67"  fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">75%</text>
+              <text x="220" y="111" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">50%</text>
+              <text x="220" y="155" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">25%</text>
+              <text x="220" y="199" fill="#6b5e4e" font-size="7.5" font-family="Inter,sans-serif">0%</text>
+              <!-- Water body (dynamic) -->
+              <rect id="tw" x="58" y="196" width="152" height="0" fill="url(#wg)" clip-path="url(#tc)"/>
+              <!-- Wave groups (dynamic paths, clipped to interior) -->
               <g clip-path="url(#tc)">
-                <g class="wave1"><path id="wp1" d="" fill="#7de8f0" opacity="0.38"/></g>
-                <g class="wave2"><path id="wp2" d="" fill="#4ec4d8" opacity="0.22"/></g>
+                <g class="wave1"><path id="wp1" d="" fill="#7de8f0" opacity="0.35"/></g>
+                <g class="wave2"><path id="wp2" d="" fill="#4ec4d8" opacity="0.20"/></g>
               </g>
-              <line id="sb" x1="110" y1="20" x2="110" y2="196" stroke="rgba(240,181,94,.45)" stroke-width="1" stroke-dasharray="3,4"/>
-              <circle cx="110" cy="12" r="5" fill="none" stroke="#f0b55e" stroke-width="1.5"/>
-              <circle cx="110" cy="12" r="2" fill="#f0b55e"/>
-              <text id="tank-no-data" x="110" y="115" text-anchor="middle" fill="rgba(205,187,150,.18)" font-size="11" font-family="Inter,sans-serif">No data yet</text>
+              <!-- Litres overlay on water (dynamic, clipped to interior) -->
+              <g clip-path="url(#tc)">
+                <text id="tw-litres" x="134" y="196" text-anchor="middle" fill="#05111d" font-size="19" font-weight="800" font-family="Inter,sans-serif"></text>
+              </g>
+              <!-- Water surface marker line (dynamic) -->
+              <line id="wsl" x1="56" y1="196" x2="212" y2="196" stroke="rgba(255,255,255,.22)" stroke-width="0.8" stroke-dasharray="4,3"/>
+              <!-- Depth-to-water label at current water surface (dynamic, left side) -->
+              <text id="dist-label" x="40" y="196" text-anchor="end" fill="rgba(240,181,94,.80)" font-size="7.5" font-weight="600" font-family="Inter,sans-serif"></text>
+              <!-- Sensor beam (dynamic) -->
+              <line id="sb" x1="134" y1="20" x2="134" y2="196" stroke="rgba(240,181,94,.38)" stroke-width="0.8" stroke-dasharray="3,4"/>
+              <!-- Sensor icon -->
+              <circle cx="134" cy="12" r="5" fill="none" stroke="#f0b55e" stroke-width="1.5"/>
+              <circle cx="134" cy="12" r="2" fill="#f0b55e"/>
+              <!-- No data placeholder -->
+              <text id="tank-no-data" x="134" y="112" text-anchor="middle" fill="rgba(205,187,150,.18)" font-size="11" font-family="Inter,sans-serif">No data yet</text>
             </svg>
-          </div>
-          <div class="tank-metrics">
-            <div class="metric"><div class="label">Fill Level</div><div class="value" id="td-pct">—</div></div>
-            <div class="metric"><div class="label">Volume</div><div class="value" id="td-vol">—</div><div class="small">of 110,446 L</div></div>
-            <div class="metric"><div class="label">Depth to Water</div><div class="value" id="td-dist">—</div></div>
           </div>
         </div>
       </div>
@@ -252,22 +276,39 @@
     }
 
     function renderTank(d) {
-      const pct  = parseFloat(d.percent)     || 0;
-      const litres = parseInt(d.litres)      || 0;
-      const dist = parseFloat(d.distance_cm) || 0;
-      const TANK_BOT = 196, TANK_H = 176;
+      const pct    = parseFloat(d.percent)     || 0;
+      const litres = parseInt(d.litres)        || 0;
+      const dist   = parseFloat(d.distance_cm) || 0;
+      const TANK_TOP = 20, TANK_BOT = 196, TANK_H = 176;
       const waterH = Math.max(0, TANK_H * pct / 100);
       const waterY = TANK_BOT - waterH;
+
       document.getElementById('tw').setAttribute('y', waterY);
       document.getElementById('tw').setAttribute('height', waterH);
       document.getElementById('sb').setAttribute('y2', waterY);
       document.getElementById('wp1').setAttribute('d', wavePath(waterY, 4,   TANK_BOT));
       document.getElementById('wp2').setAttribute('d', wavePath(waterY, 2.5, TANK_BOT));
+
+      // Water surface line
+      document.getElementById('wsl').setAttribute('y1', waterY);
+      document.getElementById('wsl').setAttribute('y2', waterY);
+
+      // Distance label alongside left scale at water surface
+      const distEl = document.getElementById('dist-label');
+      distEl.setAttribute('y', Math.max(TANK_TOP + 8, waterY + 4));
+      distEl.textContent = dist > 0 ? `${dist.toFixed(1)}cm` : '';
+
+      // Litres text centred in water body
+      const litresEl = document.getElementById('tw-litres');
+      if (waterH >= 26) {
+        litresEl.setAttribute('y', waterY + waterH / 2 + 7);
+        litresEl.textContent = `${litres.toLocaleString()} L`;
+      } else {
+        litresEl.textContent = '';
+      }
+
       document.getElementById('tank-no-data').style.display = 'none';
       setWaterColor(pct);
-      document.getElementById('td-pct').textContent  = `${pct.toFixed(1)}%`;
-      document.getElementById('td-vol').textContent  = `${litres.toLocaleString()} L`;
-      document.getElementById('td-dist').textContent = `${dist.toFixed(1)} cm`;
     }
 
     async function loadTankData() {
